@@ -22,7 +22,7 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 
 | Tabella | Descrizione |
 |---------|-------------|
-| `assessment` | Template dell'assessment con titolo, data, timer e regole di punteggio |
+| `assessment` | Template dell'assessment con titolo, data, timer, difficoltà e regole di punteggio |
 | `question` | Domanda con tipo, testo, eventuale snippet di codice e posizione |
 | `option` | Opzione di risposta con testo, correttezza e posizione |
 | `subject` | Materia o argomento |
@@ -43,6 +43,19 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 | `submission` | Record della submission con stato, timestamp e punteggio |
 | `user_answer` | Singola risposta dello studente |
 | `user_answer_selected_option` | Opzioni selezionate dallo studente per le domande a scelta multipla |
+
+## Livelli di Difficoltà
+
+Il campo `difficulty` su `assessment` e `assessment_snapshot` usa un enum con 4 livelli:
+
+| Valore | Significato |
+|--------|-------------|
+| `BEGINNER` | Concetti introduttivi |
+| `INTERMEDIATE` | Conoscenze consolidate |
+| `ADVANCED` | Padronanza approfondita |
+| `EXPERT` | Specializzazione avanzata |
+
+Il campo è nullable: gli assessment creati prima dell'introduzione del campo non hanno un livello assegnato.
 
 ## Ciclo di Vita dell'Assessment
 
