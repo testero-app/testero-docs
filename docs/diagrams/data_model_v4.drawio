@@ -49,13 +49,13 @@
                 <mxCell id="a_hdr" value="Assessment" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="40" y="720" width="380" height="36" as="geometry"/>
                 </mxCell>
-                <mxCell id="a_body" value="id : UUID  «PK»&#xa;title : String&#xa;date : LocalDate&#xa;timerMinutes : int&#xa;totalPool : int&#xa;questionsPerAssessment : int&#xa;ptsCorrect : BigDecimal&#xa;ptsWrong : BigDecimal&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
+                <mxCell id="a_body" value="id : UUID  «PK»&#xa;title : String&#xa;date : LocalDate&#xa;timerMinutes : int&#xa;totalPool : int&#xa;questionsPerAssessment : int&#xa;ptsCorrect : BigDecimal&#xa;ptsWrong : BigDecimal&#xa;difficulty : Difficulty&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="40" y="756" width="380" height="230" as="geometry"/>
                 </mxCell>
                 <mxCell id="as_hdr" value="AssessmentSnapshot" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="620" y="720" width="380" height="36" as="geometry"/>
                 </mxCell>
-                <mxCell id="as_body" value="id : UUID  «PK»&#xa;assessmentId : UUID  «FK»&#xa;contentHash : String&#xa;version : int&#xa;title : String&#xa;timerMinutes : int&#xa;questionsPerAssessment : int&#xa;ptsCorrect : BigDecimal&#xa;ptsWrong : BigDecimal&#xa;publishedAt : LocalDateTime&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
+                <mxCell id="as_body" value="id : UUID  «PK»&#xa;assessmentId : UUID  «FK»&#xa;contentHash : String&#xa;version : int&#xa;title : String&#xa;timerMinutes : int&#xa;questionsPerAssessment : int&#xa;ptsCorrect : BigDecimal&#xa;ptsWrong : BigDecimal&#xa;difficulty : Difficulty&#xa;publishedAt : LocalDateTime&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="620" y="756" width="380" height="270" as="geometry"/>
                 </mxCell>
                 <mxCell id="ca_hdr" value="ClassAssessment" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
@@ -67,13 +67,13 @@
                 <mxCell id="q_hdr" value="Question" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="40" y="1160" width="380" height="36" as="geometry"/>
                 </mxCell>
-                <mxCell id="q_body" value="id : UUID  «PK»&#xa;assessmentId : UUID  «FK»&#xa;type : String&#xa;text : String&#xa;code : String&#xa;position : int&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
+                <mxCell id="q_body" value="id : UUID  «PK»&#xa;assessmentId : UUID  «FK»&#xa;type : String&#xa;text : String&#xa;code : String&#xa;explanation : String&#xa;position : int&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="40" y="1196" width="380" height="190" as="geometry"/>
                 </mxCell>
                 <mxCell id="qs_hdr" value="QuestionSnapshot" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="620" y="1160" width="380" height="36" as="geometry"/>
                 </mxCell>
-                <mxCell id="qs_body" value="id : UUID  «PK»&#xa;assessmentSnapshotId : UUID  «FK»&#xa;originalQuestionId : UUID  «FK»&#xa;type : String&#xa;text : String&#xa;code : String&#xa;position : int&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
+                <mxCell id="qs_body" value="id : UUID  «PK»&#xa;assessmentSnapshotId : UUID  «FK»&#xa;originalQuestionId : UUID  «FK»&#xa;type : String&#xa;text : String&#xa;code : String&#xa;explanation : String&#xa;position : int&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="620" y="1196" width="380" height="210" as="geometry"/>
                 </mxCell>
                 <mxCell id="sub_hdr" value="Submission" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
@@ -91,7 +91,7 @@
                 <mxCell id="os_hdr" value="OptionSnapshot" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="620" y="1560" width="380" height="36" as="geometry"/>
                 </mxCell>
-                <mxCell id="os_body" value="id : UUID  «PK»&#xa;questionSnapshotId : UUID  «FK»&#xa;originalOptionId : UUID  «FK»&#xa;text : String&#xa;correct : boolean&#xa;position : int&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
+                <mxCell id="os_body" value="id : UUID  «PK»&#xa;questionSnapshotId : UUID  «FK»&#xa;originalOptionId : UUID  «FK»&#xa;text : String&#xa;correct : boolean&#xa;fallback : boolean&#xa;position : int&#xa;createdAt : LocalDateTime&#xa;updatedAt : LocalDateTime" style="text;html=0;fontSize=13;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="620" y="1596" width="380" height="190" as="geometry"/>
                 </mxCell>
                 <mxCell id="ua_hdr" value="UserAnswer" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=8;fillColor=#dae8fc;strokeColor=#1e1e1e;rounded=0;" parent="1" vertex="1">

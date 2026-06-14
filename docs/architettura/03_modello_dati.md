@@ -23,8 +23,8 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 | Tabella | Descrizione |
 |---------|-------------|
 | `assessment` | Template dell'assessment con titolo, data, timer, difficoltà e regole di punteggio |
-| `question` | Domanda con tipo, testo, eventuale snippet di codice e posizione |
-| `option` | Opzione di risposta con testo, correttezza e posizione |
+| `question` | Domanda con tipo, testo, eventuale snippet di codice, spiegazione e posizione |
+| `option` | Opzione di risposta con testo, correttezza, flag fallback e posizione |
 | `subject` | Materia o argomento |
 | `class_assessment` | Pubblicazione di un assessment per una classe |
 
@@ -32,9 +32,9 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 
 | Tabella | Descrizione |
 |---------|-------------|
-| `assessment_snapshot` | Copia congelata dell'assessment al momento della pubblicazione |
-| `question_snapshot` | Copia congelata della domanda |
-| `option_snapshot` | Copia congelata dell'opzione |
+| `assessment_snapshot` | Copia congelata dell'assessment al momento della pubblicazione (include difficoltà) |
+| `question_snapshot` | Copia congelata della domanda (include spiegazione) |
+| `option_snapshot` | Copia congelata dell'opzione (include flag fallback) |
 
 ### Submission
 
@@ -56,6 +56,17 @@ Il campo `difficulty` su `assessment` e `assessment_snapshot` usa un enum con 4 
 | `EXPERT` | Specializzazione avanzata |
 
 Il campo è nullable: gli assessment creati prima dell'introduzione del campo non hanno un livello assegnato.
+
+## Spiegazione della Risposta (explanation)
+
+Il campo `explanation` su `question` e `question_snapshot` contiene la spiegazione didattica della risposta corretta. Viene mostrato nella schermata di review post-consegna ("Perché") ma **mai** durante lo svolgimento del test.
+
+- Tipo: `TEXT`, nullable
+- Visibilità API: esposto solo nel `SubmissionReviewResponse`, escluso da `AssessmentQuestionsResponse`
+
+## Flag Fallback (is_fallback)
+
+Il campo `is_fallback` su `option` e `option_snapshot` identifica le opzioni di tipo "Nessuna delle precedenti". Queste opzioni vengono sempre posizionate in fondo durante lo shuffle delle risposte, indipendentemente dalla randomizzazione.
 
 ## Ciclo di Vita dell'Assessment
 
