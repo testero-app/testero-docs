@@ -4,11 +4,11 @@ Questa sezione documenta le funzionalità implementate nella piattaforma. Per og
 
 ## Autenticazione (UC 01.00)
 
-Gli utenti accedono al sistema tramite username e password. Il sistema supporta tre profili: studente, docente e amministratore. Lo studente è associato a una classe, il docente può gestire più classi.
+Gli utenti accedono al sistema tramite username (o email) e password. Il sistema supporta tre profili: studente, docente e amministratore. Lo studente è associato a una classe, il docente può gestire più classi.
 
 ### Flusso
 
-1. L'utente inserisce username e password nel form di login
+1. L'utente inserisce username o email e password nel form di login
 2. Il sistema verifica le credenziali
 3. Se valide, l'utente viene autenticato e reindirizzato alla selezione assessment
 4. Se l'utente è uno studente, il sistema recupera anche la classe di appartenenza
@@ -105,6 +105,25 @@ Subito dopo la consegna, lo studente vede la pagina dei risultati con: percentua
 ### Storico
 
 Dall'area personale, lo studente può consultare lo storico di tutte le somministrazioni completate. Per ogni somministrazione sono visibili: titolo dell'assessment, data, punteggio. Selezionando una somministrazione, lo studente accede alla revisione dettagliata che mostra ogni domanda con la risposta data, la risposta corretta e l'esito (corretta in verde, errata in rosso, non data in grigio, risposta aperta in attesa in giallo).
+
+## Profilo Utente (UC 40.00)
+
+L'utente autenticato può consultare i propri dati di profilo e modificare la propria password.
+
+### Consultazione Profilo
+
+L'endpoint `GET /users/me` restituisce: nome, username, email, classe di appartenenza (per gli studenti) e ruolo (STUDENT, TEACHER). I dati sono estratti dal database a partire dall'identità presente nel token JWT.
+
+### Cambio Password
+
+L'endpoint `PUT /users/me/password` permette di cambiare la propria password. La richiesta richiede la password corrente (per conferma d'identità), la nuova password e la conferma. Il sistema verifica che:
+
+- La password corrente sia corretta
+- La nuova password e la conferma corrispondano
+- La nuova password sia diversa dalla precedente
+- La nuova password rispetti i requisiti di sicurezza: almeno 8 caratteri, una lettera maiuscola e un numero
+
+In caso di validazione fallita, il sistema restituisce un errore specifico per ogni caso.
 
 ## Tentativi Multipli
 
