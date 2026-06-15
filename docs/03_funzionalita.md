@@ -106,6 +106,25 @@ Subito dopo la consegna, lo studente vede la pagina dei risultati con: percentua
 
 Dall'area personale, lo studente può consultare lo storico di tutte le somministrazioni completate. Per ogni somministrazione sono visibili: titolo dell'assessment, data, punteggio. Selezionando una somministrazione, lo studente accede alla revisione dettagliata che mostra ogni domanda con la risposta data, la risposta corretta e l'esito (corretta in verde, errata in rosso, non data in grigio, risposta aperta in attesa in giallo).
 
+## Profilo Utente (UC 40.00)
+
+L'utente autenticato può consultare i propri dati di profilo e modificare la propria password.
+
+### Consultazione Profilo
+
+L'endpoint `GET /users/me` restituisce: nome, username, email, classe di appartenenza (per gli studenti) e ruolo (STUDENT, TEACHER). I dati sono estratti dal database a partire dall'identità presente nel token JWT.
+
+### Cambio Password
+
+L'endpoint `PUT /users/me/password` permette di cambiare la propria password. La richiesta richiede la password corrente (per conferma d'identità), la nuova password e la conferma. Il sistema verifica che:
+
+- La password corrente sia corretta
+- La nuova password e la conferma corrispondano
+- La nuova password sia diversa dalla precedente
+- La nuova password rispetti i requisiti di sicurezza: almeno 8 caratteri, una lettera maiuscola e un numero
+
+In caso di validazione fallita, il sistema restituisce un errore specifico per ogni caso.
+
 ## Tentativi Multipli
 
 Lo studente può ripetere un assessment più volte. Ogni tentativo genera una somministrazione separata con il proprio punteggio, visibile nello storico.

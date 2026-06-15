@@ -10,6 +10,7 @@
 | Migrazioni | Liquibase | Versionamento schema, eseguite all'avvio |
 | Sicurezza | Spring Security + JWT | Autenticazione stateless |
 | Build | Maven | Wrapper incluso (`./mvnw`) |
+| Logging | SLF4J + Logback | Structured JSON (prod), console (dev), request correlation via MDC |
 | Quality | Checkstyle, SpotBugs, JaCoCo | CI obbligatoria |
 | Test | JUnit 5 + Mockito | Unit + integration |
 

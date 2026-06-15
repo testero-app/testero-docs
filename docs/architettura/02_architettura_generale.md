@@ -6,4 +6,6 @@ Il backend segue il pattern **MVC con Service Layer**: i Controller gestiscono l
 
 Il frontend è un'interfaccia rivolta agli studenti: permette di autenticarsi, selezionare un assessment, svolgere la verifica con timer e navigazione tra domande, consegnare e consultare i risultati. Lo stato dell'applicazione è gestito centralmente tramite React Context.
 
+Ogni richiesta HTTP è tracciata da un **correlation ID** (`X-Request-Id`), propagato tramite SLF4J MDC e incluso in tutti i log. In produzione i log sono emessi in formato JSON strutturato (su console e file rotante con retention di 15 giorni); in sviluppo il formato resta leggibile in chiaro.
+
 \newpage
