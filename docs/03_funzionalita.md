@@ -96,6 +96,19 @@ Alla chiusura della somministrazione (manuale o automatica), il sistema calcola 
 
 I punteggi per risposta corretta e per risposta errata sono configurabili per ogni assessment. Le risposte aperte non vengono valutate automaticamente: la correzione è demandata al docente.
 
+### Peso per Domanda
+
+Ogni domanda può avere un punteggio personalizzato (`points`). Se impostato, il sistema usa quel valore al posto di `pts_correct` per le risposte corrette. La penalità per le risposte errate resta globale (`pts_wrong`). Il punteggio massimo (`max_score`) è la somma dei punti delle domande selezionate per la somministrazione.
+
+### Breakdown per Argomento
+
+Alla consegna, il sistema calcola anche un breakdown dei punti per argomento. Per ogni argomento associato alle domande della somministrazione, il sistema fornisce:
+
+- **points_earned**: somma dei punti guadagnati, pesati per il `weight` della relazione domanda-argomento
+- **points_available**: somma dei punti massimi disponibili, pesati allo stesso modo
+
+Domande associate a più argomenti distribuiscono i punti proporzionalmente. Domande senza argomenti non compaiono nel breakdown.
+
 ## Risultati e Storico (UC 30.01)
 
 ### Risultati Post-Consegna
