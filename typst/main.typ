@@ -222,6 +222,7 @@ Ultimo aggiornamento: 13 giugno 2026.
     [Logging], [SLF4J + Logback], [Structured JSON (prod), console (dev), request correlation via MDC],
     [Quality], [Checkstyle, SpotBugs, JaCoCo], [CI obbligatoria],
     [Test], [JUnit 5 + Mockito], [Unit + integration],
+    [API Docs], [springdoc-openapi + Swagger UI], [Documentazione interattiva, solo dev (disabilitata in prod)],
   )]
   , kind: table
   )
