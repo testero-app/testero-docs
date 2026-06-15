@@ -125,6 +125,26 @@ L'endpoint `PUT /users/me/password` permette di cambiare la propria password. La
 
 In caso di validazione fallita, il sistema restituisce un errore specifico per ogni caso.
 
+## Paginazione
+
+Gli endpoint che restituiscono liste di dati supportano la paginazione tramite query parameter:
+
+| Parametro | Default | Descrizione |
+|-----------|---------|-------------|
+| `page` | 0 | Numero della pagina (zero-based) |
+| `size` | 20 | Numero di elementi per pagina |
+
+La risposta include un oggetto `pagination` con i metadati:
+
+| Campo | Tipo | Descrizione |
+|-------|------|-------------|
+| `total_elements` | long | Numero totale di elementi |
+| `total_pages` | int | Numero totale di pagine |
+| `page` | int | Pagina corrente |
+| `size` | int | Dimensione della pagina |
+
+Endpoint paginati: `GET /assessments`, `GET /submissions/mine`. Senza parametri, restituiscono la prima pagina con 20 elementi (backward compatible).
+
 ## Tentativi Multipli
 
 Lo studente può ripetere un assessment più volte. Ogni tentativo genera una somministrazione separata con il proprio punteggio, visibile nello storico.

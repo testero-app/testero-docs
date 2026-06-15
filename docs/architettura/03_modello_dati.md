@@ -26,6 +26,7 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 | `question` | Domanda con tipo, testo, eventuale snippet di codice, spiegazione e posizione |
 | `option` | Opzione di risposta con testo, correttezza, flag fallback e posizione |
 | `subject` | Materia o argomento |
+| `question_subject` | Associazione domanda-argomento (M:N) con peso |
 | `class_assessment` | Pubblicazione di un assessment per una classe |
 
 ### Snapshot (immutabili)
@@ -35,6 +36,7 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 | `assessment_snapshot` | Copia congelata dell'assessment al momento della pubblicazione (include difficoltà) |
 | `question_snapshot` | Copia congelata della domanda (include spiegazione) |
 | `option_snapshot` | Copia congelata dell'opzione (include flag fallback) |
+| `question_snapshot_subject` | Copia congelata della relazione domanda-argomento con peso |
 
 ### Submission
 
@@ -67,6 +69,18 @@ Il campo `explanation` su `question` e `question_snapshot` contiene la spiegazio
 ## Flag Fallback (is_fallback)
 
 Il campo `is_fallback` su `option` e `option_snapshot` identifica le opzioni di tipo "Nessuna delle precedenti". Queste opzioni vengono sempre posizionate in fondo durante lo shuffle delle risposte, indipendentemente dalla randomizzazione.
+
+## Relazione Domanda-Argomento (question_subject)
+
+Ogni domanda può essere associata a uno o più argomenti (`subject`) tramite la tabella `question_subject`. La relazione include un campo `weight` (DECIMAL, default 1.00) che indica quanto la domanda "pesa" su ciascun argomento. Questo permette il breakdown del punteggio per argomento nella schermata dei risultati.
+
+| Colonna | Tipo | Descrizione |
+|---------|------|-------------|
+| `question_id` | UUID (FK) | Riferimento alla domanda |
+| `subject_id` | UUID (FK) | Riferimento all'argomento |
+| `weight` | DECIMAL(5,2) | Peso della domanda sull'argomento (default 1.00) |
+
+La PK è composita su `(question_id, subject_id)`. Al momento della pubblicazione dello snapshot, le associazioni vengono copiate nella tabella `question_snapshot_subject` con la stessa struttura, garantendo l'immutabilità dei dati di riferimento.
 
 ## Ciclo di Vita dell'Assessment
 
