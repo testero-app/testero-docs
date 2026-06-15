@@ -447,11 +447,11 @@ Questa sezione documenta le funzionalità implementate nella piattaforma. Per og
 
 == Autenticazione (UC 01.00)
 <autenticazione-uc-01.00>
-Gli utenti accedono al sistema tramite username e password. Il sistema supporta tre profili: studente, docente e amministratore. Lo studente è associato a una classe, il docente può gestire più classi.
+Gli utenti accedono al sistema tramite username (o email) e password. Il sistema supporta tre profili: studente, docente e amministratore. Lo studente è associato a una classe, il docente può gestire più classi.
 
 === Flusso
 <flusso>
-+ L'utente inserisce username e password nel form di login
++ L'utente inserisce username o email e password nel form di login
 + Il sistema verifica le credenziali
 + Se valide, l'utente viene autenticato e reindirizzato alla selezione assessment
 + Se l'utente è uno studente, il sistema recupera anche la classe di appartenenza
