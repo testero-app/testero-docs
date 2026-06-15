@@ -23,7 +23,7 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 | Tabella | Descrizione |
 |---------|-------------|
 | `assessment` | Template dell'assessment con titolo, data, timer, difficoltà e regole di punteggio |
-| `question` | Domanda con tipo, testo, eventuale snippet di codice, spiegazione e posizione |
+| `question` | Domanda con tipo, testo, eventuale snippet di codice, spiegazione, posizione e punti opzionali |
 | `option` | Opzione di risposta con testo, correttezza, flag fallback e posizione |
 | `subject` | Materia o argomento |
 | `question_subject` | Associazione domanda-argomento (M:N) con peso |
@@ -34,7 +34,7 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
 | Tabella | Descrizione |
 |---------|-------------|
 | `assessment_snapshot` | Copia congelata dell'assessment al momento della pubblicazione (include difficoltà) |
-| `question_snapshot` | Copia congelata della domanda (include spiegazione) |
+| `question_snapshot` | Copia congelata della domanda (include spiegazione e punti) |
 | `option_snapshot` | Copia congelata dell'opzione (include flag fallback) |
 | `question_snapshot_subject` | Copia congelata della relazione domanda-argomento con peso |
 
@@ -81,6 +81,12 @@ Ogni domanda può essere associata a uno o più argomenti (`subject`) tramite la
 | `weight` | DECIMAL(5,2) | Peso della domanda sull'argomento (default 1.00) |
 
 La PK è composita su `(question_id, subject_id)`. Al momento della pubblicazione dello snapshot, le associazioni vengono copiate nella tabella `question_snapshot_subject` con la stessa struttura, garantendo l'immutabilità dei dati di riferimento.
+
+## Peso per Domanda (points)
+
+Il campo `points` su `question` e `question_snapshot` (DECIMAL(5,2), nullable) consente di assegnare un punteggio diverso a ciascuna domanda. Se nullo, si applica il valore globale dell'assessment (`pts_correct`).
+
+Il calcolo del punteggio massimo (`max_score`) somma i punti delle singole domande selezionate per la somministrazione. Il breakdown per argomento distribuisce i punti guadagnati e disponibili in proporzione al `weight` della relazione domanda-argomento.
 
 ## Ciclo di Vita dell'Assessment
 
