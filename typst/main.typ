@@ -209,7 +209,7 @@ Ultimo aggiornamento: 13 giugno 2026.
 <backend>
 #figure(
   align(center)[#table(
-    columns: 3,
+    columns: auto,
     align: (auto,auto,auto,),
     table.header([Componente], [Tecnologia], [Descrizione],),
     table.hline(),
@@ -219,8 +219,10 @@ Ultimo aggiornamento: 13 giugno 2026.
     [Migrazioni], [Liquibase], [Versionamento schema, eseguite all'avvio],
     [Sicurezza], [Spring Security + JWT], [Autenticazione stateless],
     [Build], [Maven], [Wrapper incluso (`./mvnw`)],
+    [Logging], [SLF4J + Logback], [Structured JSON (prod), console (dev), request correlation via MDC],
     [Quality], [Checkstyle, SpotBugs, JaCoCo], [CI obbligatoria],
     [Test], [JUnit 5 + Mockito], [Unit + integration],
+    [API Docs], [springdoc-openapi + Swagger UI], [Documentazione interattiva, solo dev (disabilitata in prod)],
   )]
   , kind: table
   )
@@ -266,6 +268,8 @@ Il backend segue il pattern #strong[MVC con Service Layer]: i Controller gestisc
 
 Il frontend è un'interfaccia rivolta agli studenti: permette di autenticarsi, selezionare un assessment, svolgere la verifica con timer e navigazione tra domande, consegnare e consultare i risultati. Lo stato dell'applicazione è gestito centralmente tramite React Context.
 
+Ogni richiesta HTTP è tracciata da un #strong[correlation ID] (`X-Request-Id`), propagato tramite SLF4J MDC e incluso in tutti i log. In produzione i log sono emessi in formato JSON strutturato (su console e file rotante con retention di 15 giorni); in sviluppo il formato resta leggibile in chiaro.
+
 = Modello Dati
 <modello-dati>
 == Diagramma ER
@@ -301,9 +305,9 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
     align: (auto,auto,),
     table.header([Tabella], [Descrizione],),
     table.hline(),
-    [`assessment`], [Template dell'assessment con titolo, data, timer e regole di punteggio],
-    [`question`], [Domanda con tipo, testo, eventuale snippet di codice e posizione],
-    [`option`], [Opzione di risposta con testo, correttezza e posizione],
+    [`assessment`], [Template dell'assessment con titolo, data, timer, difficoltà e regole di punteggio],
+    [`question`], [Domanda con tipo, testo, eventuale snippet di codice, spiegazione e posizione],
+    [`option`], [Opzione di risposta con testo, correttezza, flag fallback e posizione],
     [`subject`], [Materia o argomento],
     [`class_assessment`], [Pubblicazione di un assessment per una classe],
   )]
@@ -318,9 +322,9 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
     align: (auto,auto,),
     table.header([Tabella], [Descrizione],),
     table.hline(),
-    [`assessment_snapshot`], [Copia congelata dell'assessment al momento della pubblicazione],
-    [`question_snapshot`], [Copia congelata della domanda],
-    [`option_snapshot`], [Copia congelata dell'opzione],
+    [`assessment_snapshot`], [Copia congelata dell'assessment al momento della pubblicazione (include difficoltà)],
+    [`question_snapshot`], [Copia congelata della domanda (include spiegazione)],
+    [`option_snapshot`], [Copia congelata dell'opzione (include flag fallback)],
   )]
   , kind: table
   )
@@ -339,6 +343,37 @@ Il diagramma ER completo è disponibile in `docs/diagrams/data_model_v4.png` e `
   )]
   , kind: table
   )
+
+== Livelli di Difficoltà
+<livelli-di-difficoltà>
+Il campo `difficulty` su `assessment` e `assessment_snapshot` usa un enum con 4 livelli:
+
+#figure(
+  align(center)[#table(
+    columns: 2,
+    align: (auto,auto,),
+    table.header([Valore], [Significato],),
+    table.hline(),
+    [`BEGINNER`], [Concetti introduttivi],
+    [`INTERMEDIATE`], [Conoscenze consolidate],
+    [`ADVANCED`], [Padronanza approfondita],
+    [`EXPERT`], [Specializzazione avanzata],
+  )]
+  , kind: table
+  )
+
+Il campo è nullable: gli assessment creati prima dell'introduzione del campo non hanno un livello assegnato.
+
+== Spiegazione della Risposta (explanation)
+<spiegazione-della-risposta-explanation>
+Il campo `explanation` su `question` e `question_snapshot` contiene la spiegazione didattica della risposta corretta. Viene mostrato nella schermata di review post-consegna ("Perché") ma #strong[mai] durante lo svolgimento del test.
+
+- Tipo: `TEXT`, nullable
+- Visibilità API: esposto solo nel `SubmissionReviewResponse`, escluso da `AssessmentQuestionsResponse`
+
+== Flag Fallback (is\_fallback)
+<flag-fallback-is_fallback>
+Il campo `is_fallback` su `option` e `option_snapshot` identifica le opzioni di tipo "Nessuna delle precedenti". Queste opzioni vengono sempre posizionate in fondo durante lo shuffle delle risposte, indipendentemente dalla randomizzazione.
 
 == Ciclo di Vita dell'Assessment
 <ciclo-di-vita-dellassessment>
@@ -412,11 +447,11 @@ Questa sezione documenta le funzionalità implementate nella piattaforma. Per og
 
 == Autenticazione (UC 01.00)
 <autenticazione-uc-01.00>
-Gli utenti accedono al sistema tramite username e password. Il sistema supporta tre profili: studente, docente e amministratore. Lo studente è associato a una classe, il docente può gestire più classi.
+Gli utenti accedono al sistema tramite username (o email) e password. Il sistema supporta tre profili: studente, docente e amministratore. Lo studente è associato a una classe, il docente può gestire più classi.
 
 === Flusso
 <flusso>
-+ L'utente inserisce username e password nel form di login
++ L'utente inserisce username o email e password nel form di login
 + Il sistema verifica le credenziali
 + Se valide, l'utente viene autenticato e reindirizzato alla selezione assessment
 + Se l'utente è uno studente, il sistema recupera anche la classe di appartenenza
@@ -520,6 +555,25 @@ Subito dopo la consegna, lo studente vede la pagina dei risultati con: percentua
 === Storico
 <storico>
 Dall'area personale, lo studente può consultare lo storico di tutte le somministrazioni completate. Per ogni somministrazione sono visibili: titolo dell'assessment, data, punteggio. Selezionando una somministrazione, lo studente accede alla revisione dettagliata che mostra ogni domanda con la risposta data, la risposta corretta e l'esito (corretta in verde, errata in rosso, non data in grigio, risposta aperta in attesa in giallo).
+
+== Profilo Utente (UC 40.00)
+<profilo-utente-uc-40.00>
+L'utente autenticato può consultare i propri dati di profilo e modificare la propria password.
+
+=== Consultazione Profilo
+<consultazione-profilo>
+L'endpoint `GET /users/me` restituisce: nome, username, email, classe di appartenenza (per gli studenti) e ruolo (STUDENT, TEACHER). I dati sono estratti dal database a partire dall'identità presente nel token JWT.
+
+=== Cambio Password
+<cambio-password>
+L'endpoint `PUT /users/me/password` permette di cambiare la propria password. La richiesta richiede la password corrente (per conferma d'identità), la nuova password e la conferma. Il sistema verifica che:
+
+- La password corrente sia corretta
+- La nuova password e la conferma corrispondano
+- La nuova password sia diversa dalla precedente
+- La nuova password rispetti i requisiti di sicurezza: almeno 8 caratteri, una lettera maiuscola e un numero
+
+In caso di validazione fallita, il sistema restituisce un errore specifico per ogni caso.
 
 == Tentativi Multipli
 <tentativi-multipli>
