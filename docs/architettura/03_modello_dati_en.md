@@ -1,12 +1,12 @@
-# Modello Dati
+# Data Model
 
-## Diagramma ER
+## ER Diagram
 
-Il diagramma seguente mostra le entità principali e le loro relazioni. Le frecce indicano le foreign key (dalla tabella che contiene la FK verso la tabella referenziata).
+The following diagram shows the main entities and their relationships. Arrows point from the table containing the FK to the referenced table.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                          UTENTI E RUOLI                                │
+│                          USERS AND ROLES                               │
 │                                                                        │
 │  ┌──────────┐    ┌──────────────┐    ┌──────────┐                      │
 │  │ app_role │◄───│app_user_role │───►│ app_user │                      │
@@ -26,7 +26,7 @@ Il diagramma seguente mostra le entità principali e le loro relazioni. Le frecc
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     ASSESSMENT (template mutabili)                      │
+│                     ASSESSMENT (mutable templates)                     │
 │                                                                        │
 │  ┌────────────┐    ┌──────────┐    ┌────────┐                          │
 │  │ assessment │───►│ question │───►│ option │                          │
@@ -44,7 +44,7 @@ Il diagramma seguente mostra le entità principali e le loro relazioni. Le frecc
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     SNAPSHOT (copie immutabili)                         │
+│                     SNAPSHOT (immutable copies)                         │
 │                                                                        │
 │  ┌───────────────────┐    ┌───────────────────┐    ┌────────────────┐  │
 │  │assessment_snapshot│───►│question_snapshot  │───►│option_snapshot │  │
@@ -74,24 +74,24 @@ Il diagramma seguente mostra le entità principali e le loro relazioni. Le frecc
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Modello Relazionale
+## Relational Model
 
-Di seguito il modello relazionale completo. Ogni tabella riporta: colonne, tipo, vincoli e chiavi.
+Below is the complete relational model. Each table lists: columns, type, constraints and keys.
 
-Convenzioni:
+Conventions:
 
 - **PK** = Primary Key
 - **FK** = Foreign Key
 - **UQ** = Unique
 - **NN** = Not Null
-- Tutte le tabelle includono `created_at` e `updated_at` (TIMESTAMP, gestiti dal DB).
+- All tables include `created_at` and `updated_at` (TIMESTAMP, managed by the DB).
 
-### Utenti e Ruoli
+### Users and Roles
 
 **app_user**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK |
 | `name` | VARCHAR | NN |
 | `username` | VARCHAR | NN, UQ |
@@ -100,7 +100,7 @@ Convenzioni:
 | `must_change_password` | BOOLEAN | NN, default false |
 | `password_expires_at` | TIMESTAMP | |
 
-Esempio:
+Example:
 
 | id | name | username | email | must_change_password |
 |----|------|----------|-------|---------------------|
@@ -111,23 +111,23 @@ Esempio:
 
 **app_role**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `name` | VARCHAR | NN, UQ |
 
-Valori: `ADMIN`, `TEACHER`, `STUDENT`.
+Values: `ADMIN`, `TEACHER`, `STUDENT`.
 
 ---
 
-**app_user_role** (associazione M:N)
+**app_user_role** (M:N association)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `user_id` | UUID | PK, FK → app_user |
 | `role_id` | UUID | PK, FK → app_role |
 
-Esempio:
+Example:
 
 | user_id | role_id |
 |---------|---------|
@@ -138,40 +138,40 @@ Esempio:
 
 **user_class**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK |
 | `name` | VARCHAR | NN |
 
-Esempio: `{ id: "cl01...", name: "SW-2026" }`
+Example: `{ id: "cl01...", name: "SW-2026" }`
 
 ---
 
 **student_profile**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `user_id` | UUID | NN, UQ, FK → app_user |
 | `class_id` | UUID | NN, FK → user_class |
 
-Esempio: `{ user_id: "a1b2..." (Alice), class_id: "cl01..." (SW-2026) }`
+Example: `{ user_id: "a1b2..." (Alice), class_id: "cl01..." (SW-2026) }`
 
 ---
 
 **teacher_profile**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `user_id` | UUID | NN, UQ, FK → app_user |
 
 ---
 
-**teacher_class** (associazione M:N)
+**teacher_class** (M:N association)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `user_id` | UUID | PK, FK → app_user |
 | `class_id` | UUID | PK, FK → user_class |
 
@@ -179,16 +179,16 @@ Esempio: `{ user_id: "a1b2..." (Alice), class_id: "cl01..." (SW-2026) }`
 
 **notification_preference**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `user_id` | UUID | NN, FK → app_user |
 | `type` | VARCHAR(50) | NN, enum |
 | `enabled` | BOOLEAN | NN |
 
-Valori di `type`: `EXAM_RESULT`, `DEADLINE_REMINDER`, `PRODUCT_NEWS`.
+Values for `type`: `EXAM_RESULT`, `DEADLINE_REMINDER`, `PRODUCT_NEWS`.
 
-Esempio:
+Example:
 
 | user_id | type | enabled |
 |---------|------|---------|
@@ -197,12 +197,12 @@ Esempio:
 
 ---
 
-### Assessment (template mutabili)
+### Assessment (mutable templates)
 
-**assessment** (tabella fisica: `test`)
+**assessment** (physical table: `test`)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK |
 | `title` | VARCHAR | NN |
 | `date` | DATE | NN |
@@ -215,25 +215,25 @@ Esempio:
 | `type` | VARCHAR(20) | NN, default CERTIFICATION |
 | `passing_score` | DECIMAL | |
 
-Valori di `difficulty`: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT`.
+Values for `difficulty`: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT`.
 
-Valori di `type`: `CERTIFICATION`, `TRAINING`.
+Values for `type`: `CERTIFICATION`, `TRAINING`.
 
-Esempio:
+Example:
 
 | id | title | difficulty | type |
 |----|-------|------------|------|
-| `t01...` | Reti di Calcolatori | INTERMEDIATE | CERTIFICATION |
-| `t02...` | Basi di Dati — Allenamento | BEGINNER | TRAINING |
+| `t01...` | Computer Networks | INTERMEDIATE | CERTIFICATION |
+| `t02...` | Databases — Training | BEGINNER | TRAINING |
 
-Dettagli `t01`: timer 30 min, pool 50, domande per test 20, +1.00/−0.25 punti.
+Details for `t01`: timer 30 min, pool 50, questions per test 20, +1.00/−0.25 points.
 
 ---
 
 **question**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK |
 | `test_id` | UUID | NN, FK → assessment |
 | `type` | VARCHAR | NN |
@@ -244,17 +244,17 @@ Dettagli `t01`: timer 30 min, pool 50, domande per test 20, +1.00/−0.25 punti.
 | `points` | DECIMAL(5,2) | |
 | `difficulty` | VARCHAR(20) | enum, nullable |
 
-Esempio:
+Example:
 
-- `q01`: MULTIPLE_CHOICE, "Quale protocollo opera al livello 4 OSI?", difficulty INTERMEDIATE, assessment `t01`, posizione 1, punti default.
-- `q02`: MULTIPLE_CHOICE, "Cosa restituisce ls -la?", difficulty BEGINNER, assessment `t01`, posizione 2, punti 2.00, codice `ls -la /home`.
+- `q01`: MULTIPLE_CHOICE, "Which protocol operates at OSI layer 4?", difficulty INTERMEDIATE, assessment `t01`, position 1, default points.
+- `q02`: MULTIPLE_CHOICE, "What does ls -la return?", difficulty BEGINNER, assessment `t01`, position 2, points 2.00, code `ls -la /home`.
 
 ---
 
 **option**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK |
 | `question_id` | UUID | NN, FK → question |
 | `text` | VARCHAR | NN |
@@ -262,49 +262,49 @@ Esempio:
 | `is_fallback` | BOOLEAN | NN |
 | `position` | INT | NN |
 
-Esempio (per la domanda q01):
+Example (for question q01):
 
 | id | text | is_correct | is_fallback |
 |----|------|------------|-------------|
 | `o01...` | TCP | true | false |
 | `o02...` | HTTP | false | false |
 | `o03...` | ARP | false | false |
-| `o04...` | Nessuna delle precedenti | false | true |
+| `o04...` | None of the above | false | true |
 
 ---
 
 **subject**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK |
 | `label` | VARCHAR | NN |
 
-Esempio: `{ id: "s01...", label: "Modello OSI" }`, `{ id: "s02...", label: "Comandi Linux" }`
+Example: `{ id: "s01...", label: "OSI Model" }`, `{ id: "s02...", label: "Linux Commands" }`
 
 ---
 
-**question_subject** (associazione M:N con peso)
+**question_subject** (M:N association with weight)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `question_id` | UUID | PK, FK → question |
 | `subject_id` | UUID | PK, FK → subject |
 | `weight` | DECIMAL(5,2) | NN, default 1.00 |
 
-Esempio:
+Example:
 
 | question_id | subject_id | weight |
 |-------------|------------|--------|
-| `q01...` (Protocollo livello 4) | `s01...` (Modello OSI) | 1.00 |
-| `q02...` (ls -la) | `s02...` (Comandi Linux) | 1.00 |
+| `q01...` (Layer 4 protocol) | `s01...` (OSI Model) | 1.00 |
+| `q02...` (ls -la) | `s02...` (Linux Commands) | 1.00 |
 
 ---
 
-**assessment_subject** (tabella fisica: `test_subject`, associazione M:N)
+**assessment_subject** (physical table: `test_subject`, M:N association)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `test_id` | UUID | PK, FK → assessment |
 | `subject_id` | UUID | PK, FK → subject |
 
@@ -312,8 +312,8 @@ Esempio:
 
 **topic**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `title` | VARCHAR(200) | NN |
 | `description` | TEXT | |
@@ -321,28 +321,28 @@ Esempio:
 | `position` | INT | |
 | `enabled` | BOOLEAN | NN, default true |
 
-Esempio: `{ title: "Reti di Calcolatori", abbreviation: "RETI", position: 1, enabled: true }`
+Example: `{ title: "Computer Networks", abbreviation: "NETS", position: 1, enabled: true }`
 
 ---
 
-**topic_subject** (associazione M:N)
+**topic_subject** (M:N association)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `topic_id` | UUID | PK, FK → topic |
 | `subject_id` | UUID | PK, FK → subject |
 | `position` | INT | |
 
 ---
 
-### Snapshot (copie immutabili)
+### Snapshot (immutable copies)
 
-Il meccanismo di snapshot garantisce che le somministrazioni facciano sempre riferimento a una versione congelata dell'assessment. La pubblicazione crea copie immutabili di assessment, domande, opzioni e relazioni domanda-argomento.
+The snapshot mechanism ensures that submissions always reference a frozen version of the assessment. Publishing creates immutable copies of the assessment, questions, options and question-subject relationships.
 
 **assessment_snapshot**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `assessment_id` | UUID | FK → assessment, nullable |
 | `content_hash` | VARCHAR(64) | NN |
@@ -357,23 +357,23 @@ Il meccanismo di snapshot garantisce che le somministrazioni facciano sempre rif
 | `passing_score` | DECIMAL | |
 | `published_at` | TIMESTAMP | NN |
 
-`assessment_id` è nullable per consentire sessioni di training generate dinamicamente senza un assessment padre.
+`assessment_id` is nullable to allow dynamically generated training sessions without a parent assessment.
 
-Esempio:
+Example:
 
 | id | assessment_id | version | title |
 |----|---------------|---------|-------|
-| `snap01...` | `t01...` | 1 | Reti di Calcolatori |
-| `snap02...` | NULL | 1 | Training — Modello OSI |
+| `snap01...` | `t01...` | 1 | Computer Networks |
+| `snap02...` | NULL | 1 | Training — OSI Model |
 
-`snap01`: pubblicato il 2026-06-10 09:00. `snap02`: sessione training senza assessment padre.
+`snap01`: published 2026-06-10 09:00. `snap02`: training session without parent assessment.
 
 ---
 
 **question_snapshot**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `assessment_snapshot_id` | UUID | NN, FK → assessment_snapshot |
 | `original_question_id` | UUID | FK → question, nullable |
@@ -388,8 +388,8 @@ Esempio:
 
 **option_snapshot**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `question_snapshot_id` | UUID | NN, FK → question_snapshot |
 | `original_option_id` | UUID | FK → option, nullable |
@@ -400,26 +400,26 @@ Esempio:
 
 ---
 
-**question_snapshot_subject** (associazione M:N con peso)
+**question_snapshot_subject** (M:N association with weight)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `question_snapshot_id` | UUID | PK, FK → question_snapshot |
 | `subject_id` | UUID | PK, FK → subject |
 | `weight` | DECIMAL(5,2) | NN, default 1.00 |
 
 ---
 
-**class_assessment** (tabella fisica: `class_test`)
+**class_assessment** (physical table: `class_test`)
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `class_id` | UUID | PK, FK → user_class |
 | `assessment_snapshot_id` | UUID | PK, FK → assessment_snapshot |
 | `activated_at` | TIMESTAMP | |
 | `deactivated_at` | TIMESTAMP | |
 
-Esempio:
+Example:
 
 | class_id | assessment_snapshot_id | activated_at | deactivated_at |
 |----------|----------------------|--------------|----------------|
@@ -431,8 +431,8 @@ Esempio:
 
 **submission**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `user_id` | UUID | NN, FK → app_user |
 | `assessment_snapshot_id` | UUID | NN, FK → assessment_snapshot |
@@ -441,23 +441,23 @@ Esempio:
 | `submitted_at` | TIMESTAMP | |
 | `score` | DOUBLE | |
 
-Valori di `status`: `IN_PROGRESS`, `SUBMITTED`, `AUTO_CLOSED`.
+Values for `status`: `IN_PROGRESS`, `SUBMITTED`, `AUTO_CLOSED`.
 
-Esempio:
+Example:
 
 | id | user_id | status | score |
 |----|---------|--------|-------|
 | `sub01...` | `a1b2...` (Alice) | SUBMITTED | 16.50 |
 | `sub02...` | `a1b2...` (Alice) | AUTO_CLOSED | 12.00 |
 
-Entrambe referenziano lo snapshot `snap01`. `sub01`: avviata 09:05, consegnata 09:28. `sub02`: avviata 10:00, chiusa automaticamente 10:30.
+Both reference snapshot `snap01`. `sub01`: started 09:05, submitted 09:28. `sub02`: started 10:00, auto-closed 10:30.
 
 ---
 
 **user_answer**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `submission_id` | UUID | NN, FK → submission |
 | `question_snapshot_id` | UUID | NN, FK → question_snapshot |
@@ -468,72 +468,72 @@ Entrambe referenziano lo snapshot `snap01`. `sub01`: avviata 09:05, consegnata 0
 | `is_correct` | BOOLEAN | |
 | `points_awarded` | DOUBLE | |
 
-Esempio:
+Example:
 
 | id | type | flagged | is_correct | points_awarded |
 |----|------|---------|------------|----------------|
 | `ans01...` | MULTIPLE_CHOICE | false | true | 1.00 |
 | `ans02...` | MULTIPLE_CHOICE | true | false | -0.25 |
 
-Entrambe relative alla submission `sub01`.
+Both belong to submission `sub01`.
 
 ---
 
 **user_answer_selected_option**
 
-| Colonna | Tipo | Vincoli |
-|---------|------|---------|
+| Column | Type | Constraints |
+|--------|------|-------------|
 | `id` | UUID | PK, auto |
 | `answer_id` | UUID | NN, FK → user_answer |
 | `option_snapshot_id` | UUID | NN, FK → option_snapshot |
 
-Vincolo UNIQUE su `(answer_id, option_snapshot_id)`.
+UNIQUE constraint on `(answer_id, option_snapshot_id)`.
 
-Esempio:
+Example:
 
 | id | answer_id | option_snapshot_id |
 |----|-----------|-------------------|
-| `sel01...` | `ans01...` | `os01...` (TCP — corretta) |
-| `sel02...` | `ans02...` | `os05...` (HTTP — errata) |
+| `sel01...` | `ans01...` | `os01...` (TCP — correct) |
+| `sel02...` | `ans02...` | `os05...` (HTTP — wrong) |
 
 ---
 
-## Enumerazioni
+## Enumerations
 
-- **AssessmentType**: `CERTIFICATION`, `TRAINING` — usato in assessment, assessment_snapshot.
-- **Difficulty**: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT` — usato in assessment, assessment_snapshot, question.
-- **SubmissionStatus**: `IN_PROGRESS`, `SUBMITTED`, `AUTO_CLOSED` — usato in submission.
-- **NotificationType**: `EXAM_RESULT`, `DEADLINE_REMINDER`, `PRODUCT_NEWS` — usato in notification_preference.
+- **AssessmentType**: `CERTIFICATION`, `TRAINING` — used in assessment, assessment_snapshot.
+- **Difficulty**: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT` — used in assessment, assessment_snapshot, question.
+- **SubmissionStatus**: `IN_PROGRESS`, `SUBMITTED`, `AUTO_CLOSED` — used in submission.
+- **NotificationType**: `EXAM_RESULT`, `DEADLINE_REMINDER`, `PRODUCT_NEWS` — used in notification_preference.
 
-## Ciclo di Vita dell'Assessment
+## Assessment Lifecycle
 
-Un assessment attraversa diverse fasi dalla creazione alla somministrazione. Non esiste un campo di stato esplicito: il ciclo di vita è determinato dalla presenza di snapshot e dalle date di attivazione.
+An assessment goes through several phases from creation to administration. There is no explicit status field: the lifecycle is determined by the presence of snapshots and activation dates.
 
 ```
-                                    per ogni classe
+                                    per class
   ┌──────────┐    ┌─────────────┐    ┌───────────┐    ┌──────────────┐
-  │  Creato   │───►│ Pubblicato  │───►│  Attivo   │───►│ Disattivato  │
-  │ (bozza)   │    │ (snapshot)  │    │(per classe)│   │ (per classe) │
+  │ Created  │───►│  Published  │───►│  Active   │───►│ Deactivated  │
+  │ (draft)  │    │ (snapshot)  │    │(per class) │   │ (per class)  │
   └──────────┘    └─────────────┘    └───────────┘    └──────────────┘
        │                                    │
-       │ modificabile                       │ gli studenti possono
-       │ dal docente                        │ svolgere la verifica
+       │ editable                           │ students can
+       │ by teacher                         │ take the assessment
        ▼                                    ▼
-  nuova pubblicazione             somministrazioni in corso
-  = nuovo snapshot                    fanno riferimento
-  (versione successiva)              allo snapshot attivo
+  new publication                  ongoing submissions
+  = new snapshot                      reference the
+  (next version)                     active snapshot
 ```
 
-| Fase | Descrizione |
-|------|-------------|
-| Creato | L'assessment esiste come bozza modificabile dal docente |
-| Pubblicato | È stato generato uno snapshot immutabile. Se il contenuto non è cambiato rispetto alla pubblicazione precedente, lo snapshot viene riutilizzato |
-| Attivo | Lo snapshot è stato associato a una classe (data di attivazione valorizzata). Gli studenti della classe possono svolgere la verifica |
-| Disattivato | L'assessment è stato rimosso dalla classe (data di disattivazione valorizzata). Gli studenti non lo vedono più, ma le somministrazioni già completate restano nello storico |
+| Phase | Description |
+|-------|-------------|
+| Created | The assessment exists as a draft editable by the teacher |
+| Published | An immutable snapshot has been generated. If the content has not changed since the last publication, the existing snapshot is reused |
+| Active | The snapshot has been assigned to a class (activation date set). Students in that class can take the assessment |
+| Deactivated | The assessment has been removed from the class (deactivation date set). Students no longer see it, but completed submissions remain in history |
 
-Il docente può modificare un assessment e ripubblicarlo in qualsiasi momento: questo genera una nuova versione dello snapshot senza impattare le somministrazioni già in corso o completate sulla versione precedente.
+The teacher can modify an assessment and republish it at any time: this generates a new snapshot version without affecting submissions already in progress or completed on the previous version.
 
-## Stati della Submission
+## Submission States
 
 ```
             ┌─────────────┐
@@ -543,7 +543,7 @@ Il docente può modificare un assessment e ripubblicarlo in qualsiasi momento: q
                    │
          ┌────────┴────────┐
          │                 │
-   consegna manuale   scadenza timer
+   manual submit      timer expiry
          │                 │
          ▼                 ▼
  ┌───────────┐     ┌─────────────┐
@@ -551,19 +551,19 @@ Il docente può modificare un assessment e ripubblicarlo in qualsiasi momento: q
  └───────────┘     └─────────────┘
 ```
 
-| Stato | Significato |
-|-------|-------------|
-| IN_PROGRESS | Lo studente ha iniziato ma non ha ancora consegnato |
-| SUBMITTED | Lo studente ha consegnato manualmente |
-| AUTO_CLOSED | Il sistema ha chiuso la submission allo scadere del timer |
+| Status | Meaning |
+|--------|---------|
+| IN_PROGRESS | The student has started but not yet submitted |
+| SUBMITTED | The student submitted manually |
+| AUTO_CLOSED | The system closed the submission when the timer expired |
 
-## Note di Design
+## Design Notes
 
-- **Snapshot immutabili**: al momento della pubblicazione, assessment, domande, opzioni e relazioni domanda-argomento vengono copiati in tabelle separate. Le submission fanno sempre riferimento agli snapshot, mai ai template. Questo garantisce che modifiche successive al template non alterino i dati delle verifiche già somministrate.
-- **`assessment_id` nullable**: gli snapshot generati dal training mode non hanno un assessment padre, poiché vengono creati dinamicamente aggregando domande da più assessment.
-- **`is_fallback`**: le opzioni con questo flag (es. "Nessuna delle precedenti") vengono sempre posizionate in fondo durante lo shuffle, indipendentemente dalla randomizzazione.
-- **`weight` nella relazione domanda-argomento**: permette di calcolare il breakdown del punteggio per argomento nella schermata dei risultati.
-- **`points` per domanda**: se valorizzato, sovrascrive il punteggio globale dell'assessment (`pts_correct`). Il punteggio massimo (`max_score`) è calcolato come somma dei punti delle domande selezionate.
-- **`content_hash`**: hash SHA-256 del contenuto dell'assessment. Se il contenuto non è cambiato rispetto all'ultima pubblicazione, lo snapshot esistente viene riutilizzato.
+- **Immutable snapshots**: at publication time, assessments, questions, options and question-subject relationships are copied to separate tables. Submissions always reference snapshots, never templates. This ensures that subsequent changes to the template do not alter data from assessments already administered.
+- **Nullable `assessment_id`**: snapshots generated by training mode have no parent assessment, as they are created dynamically by aggregating questions from multiple assessments.
+- **`is_fallback`**: options with this flag (e.g. "None of the above") are always placed last during shuffle, regardless of randomization.
+- **`weight` in question-subject relationship**: enables per-subject score breakdown in the results screen.
+- **Per-question `points`**: when set, overrides the assessment-level score (`pts_correct`). The maximum score (`max_score`) is computed as the sum of points for the selected questions.
+- **`content_hash`**: SHA-256 hash of the assessment content. If the content has not changed since the last publication, the existing snapshot is reused.
 
 \newpage
