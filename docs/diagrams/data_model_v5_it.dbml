@@ -1,0 +1,305 @@
+// =============================================================================
+// Testero — Modello ER completo (DBML per dbdiagram.io)
+// Versione: v5 — 30 giugno 2026
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+//  GRUPPO: Utenti e Ruoli
+// ---------------------------------------------------------------------------
+
+Table app_user [headercolor: #4A90D9, note: 'Account utente'] {
+  id uuid [pk, note: 'Identificativo univoco']
+  name varchar [not null, note: 'Nome completo']
+  username varchar [not null, unique, note: 'Username di accesso']
+  password_hash varchar [not null, note: 'Hash bcrypt della password']
+  email varchar [unique, note: 'Email (opzionale)']
+  must_change_password boolean [not null, default: false, note: 'Forza cambio password al primo accesso']
+  password_expires_at timestamp [note: 'Scadenza password']
+  created_at timestamp [not null, note: 'Data creazione']
+  updated_at timestamp [not null, note: 'Ultima modifica']
+}
+
+Table app_role [headercolor: #4A90D9, note: 'Ruoli: ADMIN, TEACHER, STUDENT'] {
+  id uuid [pk, note: 'Auto-generato']
+  name varchar [not null, unique, note: 'Nome del ruolo']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table app_user_role [headercolor: #4A90D9, note: 'Associazione utente-ruolo (M:N)'] {
+  user_id uuid [pk, ref: > app_user.id]
+  role_id uuid [pk, ref: > app_role.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_class [headercolor: #4A90D9, note: 'Classe o sezione'] {
+  id uuid [pk]
+  name varchar [not null, note: 'Es. SW-2026, Demo-2026']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table student_profile [headercolor: #4A90D9, note: 'Profilo studente, legato a una classe'] {
+  id uuid [pk, note: 'Auto-generato']
+  user_id uuid [not null, unique, ref: > app_user.id]
+  class_id uuid [not null, ref: > user_class.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table teacher_profile [headercolor: #4A90D9, note: 'Profilo docente'] {
+  id uuid [pk, note: 'Auto-generato']
+  user_id uuid [not null, unique, ref: > app_user.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table teacher_class [headercolor: #4A90D9, note: 'Associazione docente-classe (M:N)'] {
+  user_id uuid [pk, ref: > app_user.id]
+  class_id uuid [pk, ref: > user_class.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table notification_preference [headercolor: #4A90D9, note: 'Preferenze di notifica per utente'] {
+  id uuid [pk, note: 'Auto-generato']
+  user_id uuid [not null, ref: > app_user.id]
+  type varchar(50) [not null, note: 'EXAM_RESULT | DEADLINE_REMINDER | PRODUCT_NEWS']
+  enabled boolean [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  GRUPPO: Assessment (template mutabili)
+// ---------------------------------------------------------------------------
+
+Table test [headercolor: #2ECC71, note: 'Assessment — template modificabile dal docente'] {
+  id uuid [pk]
+  title varchar [not null, note: 'Titolo dell\'assessment']
+  date date [not null, note: 'Data prevista']
+  timer_minutes int [not null, note: 'Durata in minuti']
+  total_pool int [not null, note: 'Numero totale domande nel pool']
+  questions_per_test int [not null, note: 'Domande estratte per ogni somministrazione']
+  pts_correct decimal [not null, note: 'Punti per risposta corretta']
+  pts_wrong decimal [not null, note: 'Punti per risposta errata (negativo)']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  type varchar(20) [not null, default: 'CERTIFICATION', note: 'CERTIFICATION | TRAINING']
+  passing_score decimal [note: 'Soglia di sufficienza']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question [headercolor: #2ECC71, note: 'Domanda del pool'] {
+  id uuid [pk]
+  test_id uuid [not null, ref: > test.id]
+  type varchar [not null, note: 'MULTIPLE_CHOICE, SHORT_ANSWER, ecc.']
+  text text [not null, note: 'Testo della domanda']
+  code text [note: 'Snippet di codice (opzionale)']
+  explanation text [note: 'Spiegazione didattica (visibile solo in review)']
+  position int [not null]
+  points decimal(5,2) [note: 'Punti personalizzati (sovrascrive pts_correct)']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table option [headercolor: #2ECC71, note: 'Opzione di risposta'] {
+  id uuid [pk]
+  question_id uuid [not null, ref: > question.id]
+  text varchar [not null, note: 'Testo dell\'opzione']
+  is_correct boolean [not null, note: 'Opzione corretta?']
+  is_fallback boolean [not null, note: 'Opzione fallback (es. "Nessuna delle precedenti")']
+  position int [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table subject [headercolor: #2ECC71, note: 'Argomento/materia'] {
+  id uuid [pk]
+  label varchar [not null, note: 'Es. "Modello OSI", "Comandi Linux"']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_subject [headercolor: #2ECC71, note: 'Associazione domanda-argomento (M:N) con peso'] {
+  question_id uuid [pk, ref: > question.id]
+  subject_id uuid [pk, ref: > subject.id]
+  weight decimal(5,2) [not null, default: 1.00, note: 'Peso per il breakdown punteggio']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table test_subject [headercolor: #2ECC71, note: 'Associazione assessment-argomento (M:N)'] {
+  test_id uuid [pk, ref: > test.id]
+  subject_id uuid [pk, ref: > subject.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table topic [headercolor: #2ECC71, note: 'Argomento/capitolo per allenamento'] {
+  id uuid [pk, note: 'Auto-generato']
+  title varchar(200) [not null, note: 'Titolo del topic']
+  description text [note: 'Descrizione opzionale']
+  abbreviation varchar(4) [note: 'Abbreviazione (es. RETI)']
+  position int [note: 'Ordine di visualizzazione']
+  enabled boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table topic_subject [headercolor: #2ECC71, note: 'Associazione topic-argomento (M:N)'] {
+  topic_id uuid [pk, ref: > topic.id]
+  subject_id uuid [pk, ref: > subject.id]
+  position int [note: 'Ordine all\'interno del topic']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  GRUPPO: Snapshot (copie immutabili)
+// ---------------------------------------------------------------------------
+
+Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell\'assessment al momento della pubblicazione'] {
+  id uuid [pk, note: 'Auto-generato']
+  assessment_id uuid [ref: > test.id, note: 'Nullable — training mode non ha assessment padre']
+  content_hash varchar(64) [not null, note: 'SHA-256 del contenuto, per deduplicazione']
+  version int [not null, note: 'Versione progressiva dello snapshot']
+  title varchar [not null]
+  timer_minutes int [not null]
+  questions_per_assessment int [not null]
+  pts_correct decimal [not null]
+  pts_wrong decimal [not null]
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  type varchar(20) [not null, default: 'CERTIFICATION', note: 'CERTIFICATION | TRAINING']
+  passing_score decimal
+  published_at timestamp [not null, note: 'Data di pubblicazione']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda'] {
+  id uuid [pk, note: 'Auto-generato']
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
+  original_question_id uuid [ref: > question.id, note: 'Riferimento all\'originale (nullable)']
+  type varchar [not null]
+  text text [not null]
+  code text
+  explanation text
+  position int [not null]
+  points decimal(5,2)
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table option_snapshot [headercolor: #E67E22, note: 'Copia congelata dell\'opzione'] {
+  id uuid [pk, note: 'Auto-generato']
+  question_snapshot_id uuid [not null, ref: > question_snapshot.id]
+  original_option_id uuid [ref: > option.id, note: 'Riferimento all\'originale (nullable)']
+  text varchar [not null]
+  is_correct boolean [not null]
+  is_fallback boolean [not null]
+  position int [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata relazione domanda-argomento (M:N)'] {
+  question_snapshot_id uuid [pk, ref: > question_snapshot.id]
+  subject_id uuid [pk, ref: > subject.id]
+  weight decimal(5,2) [not null, default: 1.00]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table class_test [headercolor: #E67E22, note: 'Pubblicazione di uno snapshot per una classe'] {
+  class_id uuid [pk, ref: > user_class.id]
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  activated_at timestamp [note: 'Data di attivazione per la classe']
+  deactivated_at timestamp [note: 'Data di disattivazione']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  GRUPPO: Submission (somministrazioni e risposte)
+// ---------------------------------------------------------------------------
+
+Table submission [headercolor: #9B59B6, note: 'Somministrazione di un assessment a uno studente'] {
+  id uuid [pk, note: 'Auto-generato']
+  user_id uuid [not null, ref: > app_user.id]
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
+  status varchar [not null, default: 'IN_PROGRESS', note: 'IN_PROGRESS | SUBMITTED | AUTO_CLOSED']
+  started_at timestamp [note: 'Inizio della somministrazione']
+  submitted_at timestamp [note: 'Consegna (manuale o automatica)']
+  score double [note: 'Punteggio calcolato']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_answer [headercolor: #9B59B6, note: 'Risposta dello studente a una domanda'] {
+  id uuid [pk, note: 'Auto-generato']
+  submission_id uuid [not null, ref: > submission.id]
+  question_snapshot_id uuid [not null, ref: > question_snapshot.id]
+  type varchar [not null, note: 'Tipo di risposta']
+  text text [note: 'Testo della risposta (per domande aperte)']
+  motivation text [note: 'Motivazione aggiuntiva']
+  flagged boolean [not null, note: 'Segnalata per revisione']
+  is_correct boolean [note: 'Correttezza (calcolata alla consegna)']
+  points_awarded double [note: 'Punti assegnati']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_answer_selected_option [headercolor: #9B59B6, note: 'Opzioni selezionate dallo studente'] {
+  id uuid [pk, note: 'Auto-generato']
+  answer_id uuid [not null, ref: > user_answer.id]
+  option_snapshot_id uuid [not null, ref: > option_snapshot.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (answer_id, option_snapshot_id) [unique, name: 'uq_answer_option']
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  GRUPPI DI TABELLE
+// ---------------------------------------------------------------------------
+
+TableGroup utenti_e_ruoli {
+  app_user
+  app_role
+  app_user_role
+  user_class
+  student_profile
+  teacher_profile
+  teacher_class
+  notification_preference
+}
+
+TableGroup assessment_template {
+  test
+  question
+  option
+  subject
+  question_subject
+  test_subject
+  topic
+  topic_subject
+}
+
+TableGroup snapshot_immutabili {
+  assessment_snapshot
+  question_snapshot
+  option_snapshot
+  question_snapshot_subject
+  class_test
+}
+
+TableGroup submission_risposte {
+  submission
+  user_answer
+  user_answer_selected_option
+}
