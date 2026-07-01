@@ -1,0 +1,305 @@
+// =============================================================================
+// Testero — Complete ER Model (DBML for dbdiagram.io)
+// Version: v5 — June 30, 2026
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+//  GROUP: Users and Roles
+// ---------------------------------------------------------------------------
+
+Table app_user [headercolor: #4A90D9, note: 'User account'] {
+  id uuid [pk, note: 'Unique identifier']
+  name varchar [not null, note: 'Full name']
+  username varchar [not null, unique, note: 'Login username']
+  password_hash varchar [not null, note: 'Bcrypt password hash']
+  email varchar [unique, note: 'Email (optional)']
+  must_change_password boolean [not null, default: false, note: 'Force password change on first login']
+  password_expires_at timestamp [note: 'Password expiry date']
+  created_at timestamp [not null, note: 'Creation date']
+  updated_at timestamp [not null, note: 'Last update']
+}
+
+Table app_role [headercolor: #4A90D9, note: 'Roles: ADMIN, TEACHER, STUDENT'] {
+  id uuid [pk, note: 'Auto-generated']
+  name varchar [not null, unique, note: 'Role name']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table app_user_role [headercolor: #4A90D9, note: 'User-role association (M:N)'] {
+  user_id uuid [pk, ref: > app_user.id]
+  role_id uuid [pk, ref: > app_role.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_class [headercolor: #4A90D9, note: 'Class or section'] {
+  id uuid [pk]
+  name varchar [not null, note: 'E.g. SW-2026, Demo-2026']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table student_profile [headercolor: #4A90D9, note: 'Student profile, linked to a class'] {
+  id uuid [pk, note: 'Auto-generated']
+  user_id uuid [not null, unique, ref: > app_user.id]
+  class_id uuid [not null, ref: > user_class.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table teacher_profile [headercolor: #4A90D9, note: 'Teacher profile'] {
+  id uuid [pk, note: 'Auto-generated']
+  user_id uuid [not null, unique, ref: > app_user.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table teacher_class [headercolor: #4A90D9, note: 'Teacher-class association (M:N)'] {
+  user_id uuid [pk, ref: > app_user.id]
+  class_id uuid [pk, ref: > user_class.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table notification_preference [headercolor: #4A90D9, note: 'Per-user notification preferences'] {
+  id uuid [pk, note: 'Auto-generated']
+  user_id uuid [not null, ref: > app_user.id]
+  type varchar(50) [not null, note: 'EXAM_RESULT | DEADLINE_REMINDER | PRODUCT_NEWS']
+  enabled boolean [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  GROUP: Assessment (mutable templates)
+// ---------------------------------------------------------------------------
+
+Table test [headercolor: #2ECC71, note: 'Assessment — mutable template editable by teacher'] {
+  id uuid [pk]
+  title varchar [not null, note: 'Assessment title']
+  date date [not null, note: 'Scheduled date']
+  timer_minutes int [not null, note: 'Duration in minutes']
+  total_pool int [not null, note: 'Total questions in pool']
+  questions_per_test int [not null, note: 'Questions drawn per administration']
+  pts_correct decimal [not null, note: 'Points for correct answer']
+  pts_wrong decimal [not null, note: 'Points for wrong answer (negative)']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  type varchar(20) [not null, default: 'CERTIFICATION', note: 'CERTIFICATION | TRAINING']
+  passing_score decimal [note: 'Passing threshold']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question [headercolor: #2ECC71, note: 'Question in the pool'] {
+  id uuid [pk]
+  test_id uuid [not null, ref: > test.id]
+  type varchar [not null, note: 'MULTIPLE_CHOICE, SHORT_ANSWER, etc.']
+  text text [not null, note: 'Question text']
+  code text [note: 'Code snippet (optional)']
+  explanation text [note: 'Didactic explanation (visible only in review)']
+  position int [not null]
+  points decimal(5,2) [note: 'Custom points (overrides pts_correct)']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table option [headercolor: #2ECC71, note: 'Answer option'] {
+  id uuid [pk]
+  question_id uuid [not null, ref: > question.id]
+  text varchar [not null, note: 'Option text']
+  is_correct boolean [not null, note: 'Is this the correct option?']
+  is_fallback boolean [not null, note: 'Fallback option (e.g. "None of the above")']
+  position int [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table subject [headercolor: #2ECC71, note: 'Subject / topic tag'] {
+  id uuid [pk]
+  label varchar [not null, note: 'E.g. "OSI Model", "Linux Commands"']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_subject [headercolor: #2ECC71, note: 'Question-subject association (M:N) with weight'] {
+  question_id uuid [pk, ref: > question.id]
+  subject_id uuid [pk, ref: > subject.id]
+  weight decimal(5,2) [not null, default: 1.00, note: 'Weight for score breakdown']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table test_subject [headercolor: #2ECC71, note: 'Assessment-subject association (M:N)'] {
+  test_id uuid [pk, ref: > test.id]
+  subject_id uuid [pk, ref: > subject.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table topic [headercolor: #2ECC71, note: 'Topic / chapter for training mode'] {
+  id uuid [pk, note: 'Auto-generated']
+  title varchar(200) [not null, note: 'Topic title']
+  description text [note: 'Optional description']
+  abbreviation varchar(4) [note: 'Abbreviation (e.g. NETS)']
+  position int [note: 'Display order']
+  enabled boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table topic_subject [headercolor: #2ECC71, note: 'Topic-subject association (M:N)'] {
+  topic_id uuid [pk, ref: > topic.id]
+  subject_id uuid [pk, ref: > subject.id]
+  position int [note: 'Order within topic']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  GROUP: Snapshot (immutable copies)
+// ---------------------------------------------------------------------------
+
+Table assessment_snapshot [headercolor: #E67E22, note: 'Frozen copy of assessment at publication time'] {
+  id uuid [pk, note: 'Auto-generated']
+  assessment_id uuid [ref: > test.id, note: 'Nullable — training mode has no parent assessment']
+  content_hash varchar(64) [not null, note: 'SHA-256 content hash for deduplication']
+  version int [not null, note: 'Incremental snapshot version']
+  title varchar [not null]
+  timer_minutes int [not null]
+  questions_per_assessment int [not null]
+  pts_correct decimal [not null]
+  pts_wrong decimal [not null]
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  type varchar(20) [not null, default: 'CERTIFICATION', note: 'CERTIFICATION | TRAINING']
+  passing_score decimal
+  published_at timestamp [not null, note: 'Publication date']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_snapshot [headercolor: #E67E22, note: 'Frozen copy of question'] {
+  id uuid [pk, note: 'Auto-generated']
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
+  original_question_id uuid [ref: > question.id, note: 'Reference to original (nullable)']
+  type varchar [not null]
+  text text [not null]
+  code text
+  explanation text
+  position int [not null]
+  points decimal(5,2)
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table option_snapshot [headercolor: #E67E22, note: 'Frozen copy of option'] {
+  id uuid [pk, note: 'Auto-generated']
+  question_snapshot_id uuid [not null, ref: > question_snapshot.id]
+  original_option_id uuid [ref: > option.id, note: 'Reference to original (nullable)']
+  text varchar [not null]
+  is_correct boolean [not null]
+  is_fallback boolean [not null]
+  position int [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_snapshot_subject [headercolor: #E67E22, note: 'Frozen copy of question-subject relationship (M:N)'] {
+  question_snapshot_id uuid [pk, ref: > question_snapshot.id]
+  subject_id uuid [pk, ref: > subject.id]
+  weight decimal(5,2) [not null, default: 1.00]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table class_test [headercolor: #E67E22, note: 'Snapshot published to a class'] {
+  class_id uuid [pk, ref: > user_class.id]
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  activated_at timestamp [note: 'Activation date for the class']
+  deactivated_at timestamp [note: 'Deactivation date']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  GROUP: Submission (administrations and answers)
+// ---------------------------------------------------------------------------
+
+Table submission [headercolor: #9B59B6, note: 'Assessment administration for a student'] {
+  id uuid [pk, note: 'Auto-generated']
+  user_id uuid [not null, ref: > app_user.id]
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
+  status varchar [not null, default: 'IN_PROGRESS', note: 'IN_PROGRESS | SUBMITTED | AUTO_CLOSED']
+  started_at timestamp [note: 'Administration start time']
+  submitted_at timestamp [note: 'Submission time (manual or automatic)']
+  score double [note: 'Calculated score']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_answer [headercolor: #9B59B6, note: 'Student answer to a question'] {
+  id uuid [pk, note: 'Auto-generated']
+  submission_id uuid [not null, ref: > submission.id]
+  question_snapshot_id uuid [not null, ref: > question_snapshot.id]
+  type varchar [not null, note: 'Answer type']
+  text text [note: 'Answer text (for open-ended questions)']
+  motivation text [note: 'Additional motivation']
+  flagged boolean [not null, note: 'Flagged for review']
+  is_correct boolean [note: 'Correctness (computed at submission)']
+  points_awarded double [note: 'Points awarded']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_answer_selected_option [headercolor: #9B59B6, note: 'Options selected by student'] {
+  id uuid [pk, note: 'Auto-generated']
+  answer_id uuid [not null, ref: > user_answer.id]
+  option_snapshot_id uuid [not null, ref: > option_snapshot.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (answer_id, option_snapshot_id) [unique, name: 'uq_answer_option']
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  TABLE GROUPS
+// ---------------------------------------------------------------------------
+
+TableGroup users_and_roles {
+  app_user
+  app_role
+  app_user_role
+  user_class
+  student_profile
+  teacher_profile
+  teacher_class
+  notification_preference
+}
+
+TableGroup assessment_templates {
+  test
+  question
+  option
+  subject
+  question_subject
+  test_subject
+  topic
+  topic_subject
+}
+
+TableGroup immutable_snapshots {
+  assessment_snapshot
+  question_snapshot
+  option_snapshot
+  question_snapshot_subject
+  class_test
+}
+
+TableGroup submissions_and_answers {
+  submission
+  user_answer
+  user_answer_selected_option
+}
