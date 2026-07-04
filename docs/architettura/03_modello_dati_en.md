@@ -199,34 +199,39 @@ Example:
 
 ### Assessment (mutable templates)
 
-**assessment** (physical table: `test`)
+**assessment_template**
 
 | Column | Type | Constraints |
 |--------|------|-------------|
 | `id` | UUID | PK |
 | `title` | VARCHAR | NN |
+| `assessment_description` | TEXT | nullable |
 | `date` | DATE | NN |
+| `start_time` | TIME | nullable |
 | `timer_minutes` | INT | NN |
-| `total_pool` | INT | NN |
-| `questions_per_test` | INT | NN |
+| `questions_per_assessment` | INT | NN |
 | `pts_correct` | DECIMAL | NN |
 | `pts_wrong` | DECIMAL | NN |
+| `pts_unanswered` | DECIMAL | NN, default 0 |
+| `max_attempts` | INT | nullable |
+| `shuffle_questions` | BOOLEAN | NN, default true |
+| `shuffle_options` | BOOLEAN | NN, default true |
 | `difficulty` | VARCHAR(20) | enum, nullable |
-| `type` | VARCHAR(20) | NN, default CERTIFICATION |
+| `type` | VARCHAR(20) | NN, default CERT_SIMULATION |
 | `passing_score` | DECIMAL | |
 
 Values for `difficulty`: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT`.
 
-Values for `type`: `CERTIFICATION`, `TRAINING`.
+Values for `type`: `CERT_SIMULATION`, `EXAM`, `TRAINING`.
 
 Example:
 
 | id | title | difficulty | type |
 |----|-------|------------|------|
-| `t01...` | Computer Networks | INTERMEDIATE | CERTIFICATION |
+| `t01...` | Computer Networks | INTERMEDIATE | CERT_SIMULATION |
 | `t02...` | Databases — Training | BEGINNER | TRAINING |
 
-Details for `t01`: timer 30 min, pool 50, questions per test 20, +1.00/−0.25 points.
+Details for `t01`: timer 30 min, questions per assessment 20, +1.00/−0.25/0 points.
 
 ---
 
@@ -235,7 +240,7 @@ Details for `t01`: timer 30 min, pool 50, questions per test 20, +1.00/−0.25 p
 | Column | Type | Constraints |
 |--------|------|-------------|
 | `id` | UUID | PK |
-| `test_id` | UUID | NN, FK → assessment |
+| `assessment_template_id` | UUID | NN, FK → assessment_template |
 | `type` | VARCHAR | NN |
 | `text` | TEXT | NN |
 | `code` | TEXT | |
@@ -301,11 +306,11 @@ Example:
 
 ---
 
-**assessment_subject** (physical table: `test_subject`, M:N association)
+**assessment_subject** (M:N association)
 
 | Column | Type | Constraints |
 |--------|------|-------------|
-| `test_id` | UUID | PK, FK → assessment |
+| `assessment_template_id` | UUID | PK, FK → assessment_template |
 | `subject_id` | UUID | PK, FK → subject |
 
 ---
@@ -344,7 +349,7 @@ The snapshot mechanism ensures that submissions always reference a frozen versio
 | Column | Type | Constraints |
 |--------|------|-------------|
 | `id` | UUID | PK, auto |
-| `assessment_id` | UUID | FK → assessment, nullable |
+| `assessment_id` | UUID | FK → assessment_template, nullable |
 | `content_hash` | VARCHAR(64) | NN |
 | `version` | INT | NN |
 | `title` | VARCHAR | NN |
@@ -353,7 +358,7 @@ The snapshot mechanism ensures that submissions always reference a frozen versio
 | `pts_correct` | DECIMAL | NN |
 | `pts_wrong` | DECIMAL | NN |
 | `difficulty` | VARCHAR(20) | enum, nullable |
-| `type` | VARCHAR(20) | NN, default CERTIFICATION |
+| `type` | VARCHAR(20) | NN, default CERT_SIMULATION |
 | `passing_score` | DECIMAL | |
 | `published_at` | TIMESTAMP | NN |
 
@@ -410,7 +415,7 @@ Example:
 
 ---
 
-**class_assessment** (physical table: `class_test`)
+**class_assessment** (physical table: `class_test`, M:N association)
 
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -500,7 +505,7 @@ Example:
 
 ## Enumerations
 
-- **AssessmentType**: `CERTIFICATION`, `TRAINING` — used in assessment, assessment_snapshot.
+- **AssessmentType**: `CERT_SIMULATION`, `EXAM`, `TRAINING` — used in assessment_template, assessment_snapshot.
 - **Difficulty**: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT` — used in assessment, assessment_snapshot, question.
 - **SubmissionStatus**: `IN_PROGRESS`, `SUBMITTED`, `AUTO_CLOSED` — used in submission.
 - **NotificationType**: `EXAM_RESULT`, `DEADLINE_REMINDER`, `PRODUCT_NEWS` — used in notification_preference.

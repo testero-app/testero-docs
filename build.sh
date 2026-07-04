@@ -24,6 +24,7 @@ MD_FILES=(
   "$DOCS_DIR/architettura/01_stack_tecnologico.md"
   "$DOCS_DIR/architettura/02_architettura_generale.md"
   "$DOCS_DIR/architettura/03_modello_dati.md"
+  "$DOCS_DIR/architettura/04_scenario_dati.md"
   "$DOCS_DIR/03_funzionalita.md"
 )
 
