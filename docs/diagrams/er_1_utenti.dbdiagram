@@ -1,0 +1,63 @@
+{
+  "version": "2.0.0",
+  "darkMode": false,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "app_user",
+        "schemaName": "public",
+        "x": 12,
+        "y": 218
+      },
+      {
+        "name": "app_role",
+        "schemaName": "public",
+        "x": 1202.176307766519,
+        "y": 44.189210419884716
+      },
+      {
+        "name": "app_user_role",
+        "schemaName": "public",
+        "x": 597.47021484375,
+        "y": 12
+      },
+      {
+        "name": "user_class",
+        "schemaName": "public",
+        "x": 12,
+        "y": 584
+      },
+      {
+        "name": "student_profile",
+        "schemaName": "public",
+        "x": 597.47021484375,
+        "y": 694
+      },
+      {
+        "name": "teacher_profile",
+        "schemaName": "public",
+        "x": 597.47021484375,
+        "y": 218
+      },
+      {
+        "name": "teacher_class",
+        "schemaName": "public",
+        "x": 597.47021484375,
+        "y": 932
+      },
+      {
+        "name": "notification_preference",
+        "schemaName": "public",
+        "x": 597.47021484375,
+        "y": 424
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": []
+  },
+  "views": {}
+}
