@@ -1,0 +1,697 @@
+{
+  "version": "2.0.0",
+  "darkMode": false,
+  "gridEnabling": true,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "app_user",
+        "schemaName": "public",
+        "x": 1592,
+        "y": 1864
+      },
+      {
+        "name": "app_role",
+        "schemaName": "public",
+        "x": 2120,
+        "y": 896
+      },
+      {
+        "name": "app_user_role",
+        "schemaName": "public",
+        "x": 1792,
+        "y": 1128
+      },
+      {
+        "name": "user_class",
+        "schemaName": "public",
+        "x": 1200,
+        "y": 1856
+      },
+      {
+        "name": "student_profile",
+        "schemaName": "public",
+        "x": 1856,
+        "y": 2232
+      },
+      {
+        "name": "teacher_profile",
+        "schemaName": "public",
+        "x": 1656,
+        "y": 2664
+      },
+      {
+        "name": "teacher_class",
+        "schemaName": "public",
+        "x": 1168,
+        "y": 2184
+      },
+      {
+        "name": "notification_preference",
+        "schemaName": "public",
+        "x": 1320,
+        "y": 2432
+      },
+      {
+        "name": "test",
+        "schemaName": "public",
+        "x": 608.7406278468836,
+        "y": -372.1870504316227
+      },
+      {
+        "name": "question",
+        "schemaName": "public",
+        "x": 848,
+        "y": 504
+      },
+      {
+        "name": "option",
+        "schemaName": "public",
+        "x": 72,
+        "y": 976
+      },
+      {
+        "name": "subject",
+        "schemaName": "public",
+        "x": 720,
+        "y": 976
+      },
+      {
+        "name": "question_subject",
+        "schemaName": "public",
+        "x": 48,
+        "y": 664
+      },
+      {
+        "name": "test_subject",
+        "schemaName": "public",
+        "x": 8.045900775200295,
+        "y": -372.1870504316227
+      },
+      {
+        "name": "topic",
+        "schemaName": "public",
+        "x": 2184,
+        "y": 1256
+      },
+      {
+        "name": "topic_subject",
+        "schemaName": "public",
+        "x": 1424,
+        "y": 1448
+      },
+      {
+        "name": "assessment_snapshot",
+        "schemaName": "public",
+        "x": 968,
+        "y": 1152
+      },
+      {
+        "name": "question_snapshot",
+        "schemaName": "public",
+        "x": 1296,
+        "y": 624
+      },
+      {
+        "name": "option_snapshot",
+        "schemaName": "public",
+        "x": 400,
+        "y": 680
+      },
+      {
+        "name": "question_snapshot_subject",
+        "schemaName": "public",
+        "x": 1408,
+        "y": 1128
+      },
+      {
+        "name": "class_test",
+        "schemaName": "public",
+        "x": 480,
+        "y": 1376
+      },
+      {
+        "name": "submission",
+        "schemaName": "public",
+        "x": 1768,
+        "y": 1424
+      },
+      {
+        "name": "user_answer",
+        "schemaName": "public",
+        "x": 1800,
+        "y": 416
+      },
+      {
+        "name": "user_answer_selected_option",
+        "schemaName": "public",
+        "x": 1305.9831756745298,
+        "y": -358.94856871543607
+      },
+      {
+        "name": "assessment_template",
+        "schemaName": "public",
+        "x": 48,
+        "y": 2874
+      },
+      {
+        "name": "assessment_subject",
+        "schemaName": "public",
+        "x": 402.09130859375,
+        "y": 2874
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "app_user_role",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_role",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "role_id"
+        ],
+        "secondTableName": "app_user_role",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "student_profile",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "user_class",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "class_id"
+        ],
+        "secondTableName": "student_profile",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "teacher_profile",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "teacher_class",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "user_class",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "class_id"
+        ],
+        "secondTableName": "teacher_class",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "notification_preference",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "test",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "test_id"
+        ],
+        "secondTableName": "question",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_id"
+        ],
+        "secondTableName": "option",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_id"
+        ],
+        "secondTableName": "question_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "question_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "test",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "test_id"
+        ],
+        "secondTableName": "test_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "test_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "topic",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "topic_id"
+        ],
+        "secondTableName": "topic_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "topic_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "test",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_id"
+        ],
+        "secondTableName": "assessment_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "question_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "original_question_id"
+        ],
+        "secondTableName": "question_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_snapshot_id"
+        ],
+        "secondTableName": "option_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "option",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "original_option_id"
+        ],
+        "secondTableName": "option_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_snapshot_id"
+        ],
+        "secondTableName": "question_snapshot_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "question_snapshot_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "user_class",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "class_id"
+        ],
+        "secondTableName": "class_test",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "class_test",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "submission",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "submission",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "submission",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "submission_id"
+        ],
+        "secondTableName": "user_answer",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_snapshot_id"
+        ],
+        "secondTableName": "user_answer",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "user_answer",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "answer_id"
+        ],
+        "secondTableName": "user_answer_selected_option",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "option_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "option_snapshot_id"
+        ],
+        "secondTableName": "user_answer_selected_option",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_template_id"
+        ],
+        "secondTableName": "question",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_template_id"
+        ],
+        "secondTableName": "assessment_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "assessment_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_id"
+        ],
+        "secondTableName": "assessment_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}
