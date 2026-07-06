@@ -88,3 +88,304 @@ Al momento della pubblicazione, le associazioni **Assessment Template Subject** 
 </details>
 
 ---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Question Template</h3></summary>
+
+> **Tabella SQL:** `question_template`
+>
+> **Collegata a:** `assessment_template`, `option_template`, `question_template_subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Identificativo univoco | `q-01` |
+| `assessment_template_id` | UUID | NN, FK | Riferimento all'**Assessment Template** | `a-python` |
+| `type` | VARCHAR | NN | Tipo di domanda | `MULTIPLE_CHOICE` |
+| `text` | TEXT | NN | Testo della domanda | *"Quale keyword definisce una funzione?"* |
+| `code` | TEXT | NL | Snippet di codice allegato | *"def hello(): ..."* |
+| `explanation` | TEXT | NL | Spiegazione didattica, visibile solo nel ripasso | *"La keyword def si usa per..."* |
+| `position` | INT | NN | Ordine della domanda nel pool | `1` |
+| `points` | DECIMAL | NL | Punti personalizzati. Se NULL usa `pts_correct` dell'assessment | `2.00` |
+| `difficulty` | VARCHAR(20) | NL | Difficoltà della singola domanda | `INTERMEDIATE` |
+
+La **QuestionTemplate** è una singola domanda nel pool di un **Assessment Template**. Contiene il testo, un eventuale snippet di codice (per le domande di programmazione), la spiegazione didattica e la posizione nell'ordine.
+
+Il campo `type` definisce il formato della domanda:
+
+- **MULTIPLE_CHOICE** — scelta multipla con opzioni predefinite (le opzioni stanno nell'entità **OptionTemplate**)
+- **SHORT_ANSWER** — risposta aperta testuale
+
+Il campo `points` permette di assegnare un punteggio diverso a domande specifiche. Se è NULL, la domanda usa il punteggio globale dell'assessment (`pts_correct`). Questo consente di creare domande *"bonus"* o domande che valgono il doppio.
+
+Il campo `explanation` contiene la spiegazione didattica della risposta corretta. Non viene mai mostrata durante lo svolgimento del test — appare solo nella fase di ripasso post-consegna, per aiutare lo studente a capire dove ha sbagliato.
+
+Ogni **QuestionTemplate** può essere legata a uno o più argomenti tramite **QuestionTemplateSubject** (con un peso), e ha una o più **OptionTemplate** (le risposte selezionabili).
+
+Al momento della pubblicazione, le domande vengono copiate nella tabella **Question Snapshot**.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Option Template</h3></summary>
+
+> **Tabella SQL:** `option_template`
+>
+> **Collegata a:** `question_template`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Identificativo univoco | `o-01` |
+| `question_template_id` | UUID | NN, FK | Riferimento alla **QuestionTemplate** | `q-01` |
+| `text` | VARCHAR | NN | Testo dell'opzione | *"def"* |
+| `is_correct` | BOOLEAN | NN | Se questa è la risposta corretta | `true` |
+| `is_fallback` | BOOLEAN | NN | Se è un'opzione tipo *"Nessuna delle precedenti"* | `false` |
+| `position` | INT | NN | Ordine dell'opzione | `1` |
+
+L'**OptionTemplate** è una singola opzione di risposta per una domanda a scelta multipla (**MULTIPLE_CHOICE**). Ogni **QuestionTemplate** ha tipicamente 4 opzioni, di cui una sola corretta.
+
+Il campo `is_fallback` identifica le opzioni tipo *"Nessuna delle precedenti"*. Queste opzioni vengono sempre posizionate in fondo quando il sistema mescola le risposte (`shuffle_options = true`), indipendentemente dalla randomizzazione delle altre.
+
+Al momento della pubblicazione, le opzioni vengono copiate nella tabella **Option Snapshot**.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Question Template Subject</h3></summary>
+
+> **Tabella SQL:** `question_template_subject`
+>
+> **Collegata a:** `question_template`, `subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `question_template_id` | UUID | PK, FK | Riferimento alla **QuestionTemplate** | `q-01` |
+| `subject_id` | UUID | PK, FK | Riferimento al **Subject** | `s-functions` |
+| `weight` | DECIMAL(5,2) | NN | Peso della domanda sull'argomento. Default 1.00 | `0.60` |
+
+Il **QuestionTemplateSubject** lega una **QuestionTemplate** a uno o più **Subject** con un peso. Il peso serve per il breakdown del punteggio per argomento nei risultati.
+
+Una domanda può pesare su più argomenti contemporaneamente — ad esempio una domanda su *"List comprehension con condizioni"* potrebbe pesare 60% su *"Liste"* e 40% su *"Controllo di flusso"*.
+
+Al momento della pubblicazione, queste associazioni vengono copiate nella tabella **Question Snapshot Subject** con gli stessi valori di peso.
+
+</details>
+
+---
+
+## Pubblicazione Area
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Assessment Snapshot</h3></summary>
+
+> **Tabella SQL:** `assessment_snapshot`
+>
+> **Collegata a:** `assessment_template`, `question_snapshot`, `assessment_snapshot_subject`, `class_test`, `submission`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `snap-01` |
+| `assessment_template_id` | UUID | NL, FK | Riferimento all'**Assessment Template** di origine. NULL per training | `a-python` |
+| `content_hash` | VARCHAR(64) | NN | SHA-256 del contenuto. Se identico, lo snapshot viene riusato | `a3f8c2e1...` |
+| `title` | VARCHAR | NN | Titolo congelato | *"Python Foundation"* |
+| `timer_minutes` | INT | NN | Durata congelata | `30` |
+| `questions_per_assessment` | INT | NN | Domande per studente congelate | `20` |
+| `pts_correct` | DECIMAL | NN | Punti per corretta congelati | `1.00` |
+| `pts_wrong` | DECIMAL | NN | Punti per errata congelati | `-0.25` |
+| `difficulty` | VARCHAR(20) | NL | Difficoltà congelata | `INTERMEDIATE` |
+| `type` | VARCHAR(20) | NN | Tipo congelato | `CERT_SIMULATION` |
+| `passing_score` | DECIMAL | NL | Soglia sufficienza congelata | `12.00` |
+| `published_at` | TIMESTAMP | NN | Quando è stato pubblicato | `2026-07-10 08:00` |
+
+L'**Assessment Snapshot** è la *copia congelata e immutabile* di un **Assessment Template** al momento della pubblicazione. È il record a cui fanno riferimento tutte le somministrazioni — gli studenti non interagiscono mai con il template, solo con lo snapshot.
+
+Ogni campo dell'**Assessment Template** viene copiato qui al momento del publish: titolo, timer, punteggi, difficoltà, tipo, soglia. Da quel momento i valori sono congelati — se il docente modifica il template e ripubblica, viene creato un nuovo snapshot senza alterare il precedente.
+
+Il campo `assessment_template_id` è **nullable**: gli snapshot generati dal training mode non hanno un **Assessment Template** padre, perché vengono creati dinamicamente aggregando domande da più assessment.
+
+Il campo `content_hash` è un hash SHA-256 del contenuto completo (template + domande + opzioni + subject). Se il docente pubblica senza aver cambiato nulla, il sistema rileva che l'hash è identico e riusa lo snapshot esistente invece di crearne uno nuovo.
+
+:::tip
+*Lo snapshot è la "fotocopia" di cui parlavamo nell'**Assessment Template**: una volta creata, nessuno può modificarla. Anche se il docente cancellasse l'originale, gli snapshot e le submission restano intatti.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Question Snapshot</h3></summary>
+
+> **Tabella SQL:** `question_snapshot`
+>
+> **Collegata a:** `assessment_snapshot`, `question_template`, `option_snapshot`, `question_snapshot_subject`, `user_answer`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `qs-01` |
+| `assessment_snapshot_id` | UUID | NN, FK | Riferimento all'**Assessment Snapshot** | `snap-01` |
+| `original_question_id` | UUID | NL, FK | Riferimento alla **QuestionTemplate** originale | `q-01` |
+| `type` | VARCHAR | NN | Tipo congelato | `MULTIPLE_CHOICE` |
+| `text` | TEXT | NN | Testo congelato | *"Quale keyword definisce una funzione?"* |
+| `code` | TEXT | NL | Snippet di codice congelato | *"def hello(): ..."* |
+| `explanation` | TEXT | NL | Spiegazione congelata | *"La keyword def si usa per..."* |
+| `position` | INT | NN | Posizione congelata | `1` |
+| `points` | DECIMAL | NL | Punti personalizzati congelati | `2.00` |
+
+Il **Question Snapshot** è la copia congelata di una **QuestionTemplate**. Viene creato al momento della pubblicazione copiando tutti i campi dalla domanda originale.
+
+Il campo `original_question_id` mantiene il riferimento alla domanda originale nel template. È nullable perché il template potrebbe essere eliminato senza impattare lo snapshot.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Option Snapshot</h3></summary>
+
+> **Tabella SQL:** `option_snapshot`
+>
+> **Collegata a:** `question_snapshot`, `option_template`, `user_answer_selected_option`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `os-01` |
+| `question_snapshot_id` | UUID | NN, FK | Riferimento al **Question Snapshot** | `qs-01` |
+| `original_option_id` | UUID | NL, FK | Riferimento all'**OptionTemplate** originale | `o-01` |
+| `text` | VARCHAR | NN | Testo congelato | *"def"* |
+| `is_correct` | BOOLEAN | NN | Se è la risposta corretta | `true` |
+| `is_fallback` | BOOLEAN | NN | Se è un'opzione fallback | `false` |
+| `position` | INT | NN | Posizione congelata | `1` |
+
+L'**Option Snapshot** è la copia congelata di una **OptionTemplate**. Stessa logica del **Question Snapshot**: ogni campo viene copiato e da quel momento è immutabile.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Assessment Snapshot Subject</h3></summary>
+
+> **Tabella SQL:** `assessment_snapshot_subject`
+>
+> **Collegata a:** `assessment_snapshot`, `subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `assessment_snapshot_id` | UUID | PK, FK | Riferimento all'**Assessment Snapshot** | `snap-01` |
+| `subject_id` | UUID | PK, FK | Riferimento al **Subject** | `s-variables` |
+| `label` | VARCHAR | NL | Label del subject congelato al momento del publish | *"Variabili e tipi"* |
+
+L'**Assessment Snapshot Subject** è la copia congelata delle associazioni **Assessment Template Subject**. Registra quali argomenti macro copriva l'assessment al momento della pubblicazione.
+
+Il campo `label` congela il nome del subject al momento del publish. Se il subject viene successivamente rinominato o eliminato, lo snapshot mantiene il nome originale.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Question Snapshot Subject</h3></summary>
+
+> **Tabella SQL:** `question_snapshot_subject`
+>
+> **Collegata a:** `question_snapshot`, `subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `question_snapshot_id` | UUID | PK, FK | Riferimento al **Question Snapshot** | `qs-01` |
+| `subject_id` | UUID | PK, FK | Riferimento al **Subject** | `s-functions` |
+| `weight` | DECIMAL(5,2) | NN | Peso congelato. Default 1.00 | `0.60` |
+| `label` | VARCHAR | NL | Label del subject congelato al momento del publish | *"Funzioni"* |
+
+Il **Question Snapshot Subject** è la copia congelata delle associazioni **QuestionTemplateSubject**. Conserva i pesi originali di ogni domanda sui suoi argomenti e il label congelato, usati per calcolare il breakdown del punteggio per argomento nei risultati.
+
+</details>
+
+---
+
+## Tassonomia
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Subject</h3></summary>
+
+> **Tabella SQL:** `subject`
+>
+> **Collegata a:** `assessment_template_subject`, `question_template_subject`, `assessment_snapshot_subject`, `question_snapshot_subject`, `topic_subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Identificativo univoco | `s-variables` |
+| `label` | VARCHAR | NN | Nome dell'argomento | *"Variabili e tipi"* |
+
+Il **Subject** è un argomento o tag che classifica i contenuti del sistema. Rappresenta un concetto didattico — ad esempio *"Variabili e tipi"*, *"Controllo di flusso"*, *"Funzioni"*, *"Modello OSI"*.
+
+I **Subject** sono entità stabili e condivise: non vengono mai duplicati nello snapshot. Sono referenziati sia dai template (`assessment_template_subject`, `question_template_subject`) sia dagli snapshot (`assessment_snapshot_subject`, `question_snapshot_subject`) tramite FK.
+
+Un **Subject** può essere usato a due livelli diversi:
+- **Livello assessment** — tramite **Assessment Template Subject**, per dichiarare *"questo test copre questi argomenti macro"*
+- **Livello domanda** — tramite **QuestionTemplateSubject**, per dichiarare *"questa domanda specifica riguarda questo argomento"* (con un peso)
+
+I **Subject** possono anche essere raggruppati in **Topic** tramite la tabella **Topic Subject**, per organizzare la sezione Allenamento.
+
+:::tip
+*Al momento della pubblicazione il `label` del subject viene congelato nelle tabelle snapshot subject. Se il subject viene rinominato o eliminato in futuro, i risultati delle verifiche passate continuano a mostrare il nome originale.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Topic</h3></summary>
+
+> **Tabella SQL:** `topic`
+>
+> **Collegata a:** `topic_subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `t-python` |
+| `title` | VARCHAR(200) | NN | Titolo del topic | *"Fondamenti Python"* |
+| `description` | TEXT | NL | Descrizione opzionale | *"Variabili, tipi, controllo di flusso..."* |
+| `abbreviation` | VARCHAR(4) | NL | Sigla breve | *"Py"* |
+| `position` | INT | | Ordine nella lista | `1` |
+| `enabled` | BOOLEAN | NN | Se il topic è visibile nella sezione Allenamento. Default true | `true` |
+
+Il **Topic** è un macro-argomento usato nella sezione Allenamento del frontend. Rappresenta un'area didattica ampia (es. *"Fondamenti Python"*, *"Reti di Calcolatori"*) che raggruppa più **Subject** come capitoli.
+
+Lo studente nella sezione Allenamento vede la lista dei **Topic** attivi, ognuno con i suoi capitoli (**Subject**). Può selezionare un topic, scegliere quali capitoli esercitare, e avviare una sessione di training.
+
+Il campo `enabled` permette di nascondere un topic dalla lista senza eliminarlo — utile per topic in preparazione.
+
+:::tip
+*Il **Topic** è un contenitore organizzativo per la navigazione, non un'entità del modello assessment. Un **Subject** come *"Variabili e tipi"* può appartenere al topic *"Fondamenti Python"* per l'allenamento, e contemporaneamente essere usato come tag su domande di assessment diversi.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Topic Subject</h3></summary>
+
+> **Tabella SQL:** `topic_subject`
+>
+> **Collegata a:** `topic`, `subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `topic_id` | UUID | PK, FK | Riferimento al **Topic** | `t-python` |
+| `subject_id` | UUID | PK, FK | Riferimento al **Subject** | `s-variables` |
+| `position` | INT | | Ordine del capitolo nel topic | `1` |
+
+Il **Topic Subject** lega un **Topic** ai suoi capitoli (**Subject**). La relazione è M:N: un topic contiene più subject, e uno stesso subject può appartenere a più topic.
+
+Il campo `position` definisce l'ordine in cui i capitoli appaiono all'interno del topic nella sezione Allenamento.
+
+</details>
+
+---
