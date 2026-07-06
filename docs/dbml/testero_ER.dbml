@@ -169,11 +169,10 @@ Table topic_subject [headercolor: #2ECC71, note: 'Capitoli di un topic = subject
 //  Le submission fanno sempre riferimento allo snapshot, mai al template.
 // ---------------------------------------------------------------------------
 
-Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell assessment al publish. Es: { title: "Reti di Calcolatori", version: 1, hash: "a3f8c2...", assessment_id: null per training }'] {
+Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell assessment al publish. Es: { title: "Python Foundation", hash: "a3f8c2...", assessment_template_id: null per training }'] {
   id uuid [pk]
-  assessment_id uuid [ref: > assessment_template.id, note: 'NULL per sessioni di training (nessun assessment padre)']
+  assessment_template_id uuid [ref: > assessment_template.id, note: 'NULL per sessioni di training (nessun assessment padre)']
   content_hash varchar(64) [not null, note: 'SHA-256 del contenuto. Se uguale al precedente, riusa lo snapshot']
-  version int [not null, note: 'Versione progressiva: 1, 2, 3...']
   title varchar [not null]
   timer_minutes int [not null]
   questions_per_assessment int [not null]
@@ -213,17 +212,19 @@ Table option_snapshot [headercolor: #E67E22, note: 'Copia congelata dell opzione
   updated_at timestamp [not null]
 }
 
-Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata del legame domanda-argomento. Es: { question_snapshot: qs1, subject: "Modello OSI", weight: 1.00 }'] {
+Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata del legame domanda-argomento con label congelato. Es: { question_snapshot: qs1, subject: "Modello OSI", weight: 1.00 }'] {
   question_snapshot_id uuid [pk, ref: > question_snapshot.id]
   subject_id uuid [pk, ref: > subject.id]
   weight decimal(5,2) [not null, default: 1.00]
+  label varchar [note: 'Label del subject congelato al momento del publish']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
 
-Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata degli argomenti macro dell assessment. Es: { snapshot: v1, subject: "Variabili e tipi" }'] {
+Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata degli argomenti macro dell assessment con label congelato. Es: { snapshot: v1, subject: "Variabili e tipi" }'] {
   assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
   subject_id uuid [pk, ref: > subject.id]
+  label varchar [note: 'Label del subject congelato al momento del publish']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -245,7 +246,7 @@ Table class_test [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe
 Table submission [headercolor: #9B59B6, note: 'Una somministrazione. Es: { user: "a.rossi", snapshot: v1, status: SUBMITTED, score: 16.50, durata: 23 min }'] {
   id uuid [pk]
   user_id uuid [not null, ref: > app_user.id, note: 'Chi sta svolgendo']
-  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id, note: 'Quale versione del test']
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id, note: 'Quale snapshot del test']
   status varchar [not null, default: 'IN_PROGRESS', note: 'IN_PROGRESS → SUBMITTED (consegna manuale) o AUTO_CLOSED (timer scaduto)']
   started_at timestamp [note: 'Quando ha cliccato Avvia']
   submitted_at timestamp [note: 'Quando ha consegnato']
