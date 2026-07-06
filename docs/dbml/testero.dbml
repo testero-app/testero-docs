@@ -78,12 +78,10 @@ Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica 
 //  Come e strutturato un assessment: domande, opzioni, argomenti
 // ---------------------------------------------------------------------------
 
-Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza modificabile dal docente. Es: { title: "Reti di Calcolatori", timer: 30min, estrae: 20, +1.00/-0.25/0 punti, tipo: CERT_SIMULATION }'] {
+Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza modificabile dal docente. Es: { title: "Python Foundation", timer: 30min, estrae: 20, +1.00/-0.25/0 punti, tipo: CERT_SIMULATION }'] {
   id uuid [pk]
   title varchar [not null, note: 'Es: "Reti di Calcolatori"']
-  assessment_description text [note: 'Descrizione estesa dell assessment. Nullable']
-  date date [not null, note: 'Data prevista. Es: 2026-07-10']
-  start_time time [note: 'Ora di inizio. Nullable. Es: 08:30']
+  assessment_description text [note: 'Descrizione visibile allo studente prima di iniziare. Nullable']
   timer_minutes int [not null, note: 'Durata in minuti. 0 = senza timer']
   questions_per_assessment int [not null, note: 'Quante ne estrae per studente. Es: 20']
   pts_correct decimal [not null, note: 'Punti per corretta. Es: 1.00']
@@ -139,7 +137,7 @@ Table question_subject [headercolor: #2ECC71, note: 'Lega domanda ad argomento c
   updated_at timestamp [not null]
 }
 
-Table assessment_subject [headercolor: #2ECC71, note: 'Argomenti coperti dall assessment (M:N). Es: { assessment: "Reti", subject: "Modello OSI" }'] {
+Table assessment_template_subject [headercolor: #2ECC71, note: 'Argomenti macro dell assessment (M:N). Es: { assessment: "Python Foundation", subject: "Variabili e tipi" }'] {
   assessment_template_id uuid [pk, ref: > assessment_template.id]
   subject_id uuid [pk, ref: > subject.id]
   created_at timestamp [not null]
@@ -223,11 +221,18 @@ Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata de
   updated_at timestamp [not null]
 }
 
-Table class_test [headercolor: #E67E22, note: 'Attiva uno snapshot per una classe. Es: { class: "SW-2026", snapshot: v1, activated: 2026-07-10, deactivated: null = ancora attivo }'] {
+Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata degli argomenti macro dell assessment. Es: { snapshot: v1, subject: "Variabili e tipi" }'] {
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  subject_id uuid [pk, ref: > subject.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table class_test [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe con finestra di disponibilita. Es: { class: "SW-2026", snapshot: v1, dal venerdi alla domenica }'] {
   class_id uuid [pk, ref: > user_class.id]
   assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
-  activated_at timestamp [note: 'Quando diventa visibile agli studenti']
-  deactivated_at timestamp [note: 'Quando viene rimosso. NULL = ancora attivo']
+  available_from timestamp [note: 'Da quando gli studenti possono accedere. NULL = subito']
+  available_until timestamp [note: 'Fino a quando. NULL = nessuna scadenza']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -296,7 +301,7 @@ TableGroup assessment_template [color: #2ECC71] {
   option
   subject
   question_subject
-  assessment_subject
+  assessment_template_subject
   topic
   topic_subject
 }
@@ -306,6 +311,7 @@ TableGroup snapshot_immutabili [color: #E67E22] {
   question_snapshot
   option_snapshot
   question_snapshot_subject
+  assessment_snapshot_subject
   class_test
 }
 
