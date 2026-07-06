@@ -15,7 +15,7 @@ Le entità sono organizzate in 4 aree:
 
 > **Tabella SQL:** `assessment_template`
 >
-> **Collegata a:** `question`, `assessment_subject`, `assessment_snapshot`
+> **Collegata a:** `question`, `assessment_template_subject`, `assessment_snapshot`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
@@ -57,5 +57,28 @@ Il docente inserisce N domande nell'assessment (es. 50). Il campo `questions_per
 - Quando `shuffle_questions = false` e `shuffle_options = false`, l'assessment è identico per tutti — utile per un EXAM in aula dove il docente vuole lo stesso ordine.
 - `max_attempts = 1` rende l'assessment one-shot (tipico per EXAM). `NULL` = illimitato (tipico per TRAINING e CERT_SIMULATION).
 - La finestra di disponibilità (quando gli studenti possono accedere) non è su questa tabella: è sulla tabella `class_test`, che rappresenta l'assegnazione di uno snapshot a una classe. Questo permette di assegnare lo stesso test con finestre diverse per classi diverse.
+
+---
+
+### Assessment Template Subject
+
+> **Tabella SQL:** `assessment_template_subject`
+>
+> **Collegata a:** `assessment_template`, `subject`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `assessment_template_id` | UUID | PK, FK | Riferimento all'assessment template | `a-python` |
+| `subject_id` | UUID | PK, FK | Riferimento all'argomento | `s-variables` |
+
+L'**Assessment Template Subject** è una tabella di join che lega un **Assessment Template** ai suoi argomenti macro. Serve a dichiarare "questo assessment copre questi argomenti" — ad esempio "Python Foundation" copre "Variabili e tipi", "Controllo di flusso", "Funzioni".
+
+La chiave primaria è composta da entrambe le FK — un assessment non può essere legato due volte allo stesso argomento. La relazione è M:N: un assessment copre più argomenti, e uno stesso argomento può appartenere a più assessment.
+
+:::tip
+*Non confondere con `question_subject`: quella lega una singola **domanda** a un argomento (con un peso). Questa lega l'intero **assessment** a un argomento. Servono a livelli diversi: `assessment_template_subject` dice "di cosa parla il test nel suo insieme", `question_subject` dice "di cosa parla questa domanda specifica". I due insiemi non sono necessariamente uguali — una domanda potrebbe coprire un sotto-argomento (es. "List comprehension") che non è nei subject dell'assessment.*
+:::
+
+Al momento della pubblicazione, le associazioni `assessment_template_subject` vengono copiate nella tabella `assessment_snapshot_subject`, che congela gli argomenti macro dello snapshot indipendentemente dalle domande.
 
 ---
