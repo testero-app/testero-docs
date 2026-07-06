@@ -97,7 +97,7 @@ Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza mod
   updated_at timestamp [not null]
 }
 
-Table question [headercolor: #2ECC71, note: 'Domanda nel pool di un assessment. Es: { text: "Quanti livelli ha il modello OSI?", type: MULTIPLE_CHOICE, difficulty: BEGINNER }'] {
+Table question_template [headercolor: #2ECC71, note: 'Domanda nel pool di un assessment. Es: { text: "Quanti livelli ha il modello OSI?", type: MULTIPLE_CHOICE, difficulty: BEGINNER }'] {
   id uuid [pk]
   assessment_template_id uuid [not null, ref: > assessment_template.id, note: 'Assessment di appartenenza']
   type varchar [not null, note: 'MULTIPLE_CHOICE | SHORT_ANSWER']
@@ -111,9 +111,9 @@ Table question [headercolor: #2ECC71, note: 'Domanda nel pool di un assessment. 
   updated_at timestamp [not null]
 }
 
-Table option [headercolor: #2ECC71, note: 'Opzione di risposta. Es: { text: "7", is_correct: true, is_fallback: false }'] {
+Table option_template [headercolor: #2ECC71, note: 'Opzione di risposta. Es: { text: "7", is_correct: true, is_fallback: false }'] {
   id uuid [pk]
-  question_id uuid [not null, ref: > question.id]
+  question_template_id uuid [not null, ref: > question_template.id]
   text varchar [not null, note: 'Es: "TCP" oppure "Nessuna delle precedenti"']
   is_correct boolean [not null, note: 'true = risposta giusta']
   is_fallback boolean [not null, note: 'true = opzione tipo "Nessuna delle precedenti", va sempre in fondo nello shuffle']
@@ -129,8 +129,8 @@ Table subject [headercolor: #2ECC71, note: 'Argomento o tag. Es: { label: "Model
   updated_at timestamp [not null]
 }
 
-Table question_subject [headercolor: #2ECC71, note: 'Lega domanda ad argomento con peso. Es: { question: "Livelli OSI?", subject: "Modello OSI", weight: 1.00 }'] {
-  question_id uuid [pk, ref: > question.id]
+Table question_template_subject [headercolor: #2ECC71, note: 'Lega domanda ad argomento con peso. Es: { question: "Livelli OSI?", subject: "Modello OSI", weight: 1.00 }'] {
+  question_template_id uuid [pk, ref: > question_template.id]
   subject_id uuid [pk, ref: > subject.id]
   weight decimal(5,2) [not null, default: 1.00, note: 'Peso per il breakdown punteggio per argomento']
   created_at timestamp [not null]
@@ -190,7 +190,7 @@ Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell ass
 Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda. Es: { text: "Quanti livelli ha OSI?", original: q1, points: null }'] {
   id uuid [pk]
   assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
-  original_question_id uuid [ref: > question.id, note: 'Riferimento all originale (nullable)']
+  original_question_id uuid [ref: > question_template.id, note: 'Riferimento all originale (nullable)']
   type varchar [not null]
   text text [not null]
   code text
@@ -204,7 +204,7 @@ Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della doma
 Table option_snapshot [headercolor: #E67E22, note: 'Copia congelata dell opzione. Es: { text: "7", is_correct: true }'] {
   id uuid [pk]
   question_snapshot_id uuid [not null, ref: > question_snapshot.id]
-  original_option_id uuid [ref: > option.id, note: 'Riferimento all originale (nullable)']
+  original_option_id uuid [ref: > option_template.id, note: 'Riferimento all originale (nullable)']
   text varchar [not null]
   is_correct boolean [not null]
   is_fallback boolean [not null]
@@ -297,10 +297,10 @@ TableGroup utenti_e_ruoli [color: #4A90D9] {
 
 TableGroup assessment_template [color: #2ECC71] {
   assessment_template
-  question
-  option
+  question_template
+  option_template
   subject
-  question_subject
+  question_template_subject
   assessment_template_subject
   topic
   topic_subject

@@ -16,7 +16,7 @@ Le entità sono organizzate in 4 aree:
 
 > **Tabella SQL:** `assessment_template`
 >
-> **Collegata a:** `question`, `assessment_template_subject`, `assessment_snapshot`
+> **Collegata a:** `question_template`, `assessment_template_subject`, `assessment_snapshot`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
@@ -35,7 +35,7 @@ Le entità sono organizzate in 4 aree:
 | `shuffle_options` | BOOLEAN | NN | Mescola le opzioni di risposta. Default true | `true` |
 | `assessment_description` | TEXT | NL | Descrizione visibile allo studente prima di iniziare | *"Simulazione esame..."* |
 
-L'**Assessment Template** è il *template modificabile di un assessment* — la bozza che il docente prepara prima di pubblicarla. Contiene le regole della verifica (durata, punteggio, quante domande estrarre, se mescolare le risposte) ma non le domande stesse, che stanno nell'entità **Question**.
+L'**Assessment Template** è il *template modificabile di un assessment* — la bozza che il docente prepara prima di pubblicarla. Contiene le regole della verifica (durata, punteggio, quante domande estrarre, se mescolare le risposte) ma non le domande stesse, che stanno nell'entità **QuestionTemplate**.
 
 Un assessment può essere di tre tipi:
 
@@ -80,7 +80,7 @@ L'**Assessment Template Subject** è una tabella di join che lega un **Assessmen
 La chiave primaria è composta da entrambe le FK — un assessment non può essere legato due volte allo stesso argomento. La relazione è M:N: un assessment copre più argomenti, e uno stesso argomento può appartenere a più assessment.
 
 :::tip
-*Non confondere con **Question Subject**: quella lega una singola **Question** a un argomento (con un peso). Questa lega l'intero **Assessment Template** a un argomento. Servono a livelli diversi: **Assessment Template Subject** dice *"di cosa parla il test nel suo insieme"*, **Question Subject** dice *"di cosa parla questa domanda specifica"*. I due insiemi non sono necessariamente uguali — una domanda potrebbe coprire un sotto-argomento (es. "List comprehension") che non è nei subject dell'assessment.*
+*Non confondere con **QuestionTemplateSubject**: quella lega una singola **QuestionTemplate** a un argomento (con un peso). Questa lega l'intero **Assessment Template** a un argomento. Servono a livelli diversi: **Assessment Template Subject** dice *"di cosa parla il test nel suo insieme"*, **QuestionTemplateSubject** dice *"di cosa parla questa domanda specifica"*. I due insiemi non sono necessariamente uguali — una domanda potrebbe coprire un sotto-argomento (es. "List comprehension") che non è nei subject dell'assessment.*
 :::
 
 Al momento della pubblicazione, le associazioni **Assessment Template Subject** vengono copiate nella tabella **Assessment Snapshot Subject**, che congela gli argomenti macro dello snapshot indipendentemente dalle domande.
