@@ -11,7 +11,8 @@ Le entità sono organizzate in 4 aree:
 
 ## Assessment Area
 
-### Assessment Template
+<details>
+<summary><h3 style={{display: 'inline'}}>Assessment Template</h3></summary>
 
 > **Tabella SQL:** `assessment_template`
 >
@@ -20,7 +21,7 @@ Le entità sono organizzate in 4 aree:
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
 | `id` | UUID | PK | Identificativo univoco | `a1b2c3...` |
-| `title` | VARCHAR | NN | Titolo dell'assessment | "Python Foundation" |
+| `title` | VARCHAR | NN | Titolo dell'assessment | *"Python Foundation"* |
 | `timer_minutes` | INT | NN | Durata in minuti. 0 = senza timer | `30` |
 | `questions_per_assessment` | INT | NN | Domande estratte dal pool per ogni studente | `20` |
 | `pts_correct` | DECIMAL | NN | Punti per risposta corretta | `1.00` |
@@ -32,9 +33,9 @@ Le entità sono organizzate in 4 aree:
 | `max_attempts` | INT | NL | Tentativi massimi. NULL = illimitato | `NULL` |
 | `shuffle_questions` | BOOLEAN | NN | Mescola l'ordine delle domande. Default true | `true` |
 | `shuffle_options` | BOOLEAN | NN | Mescola le opzioni di risposta. Default true | `true` |
-| `assessment_description` | TEXT | NL | Descrizione visibile allo studente prima di iniziare | "Simulazione esame..." |
+| `assessment_description` | TEXT | NL | Descrizione visibile allo studente prima di iniziare | *"Simulazione esame..."* |
 
-L'**Assessment Template** è il **template modificabile di un assessment** — la bozza che il docente prepara prima di pubblicarla. Contiene le regole della verifica (durata, punteggio, quante domande estrarre, se mescolare le risposte) ma non le domande stesse, che stanno nell'entità **Question**.
+L'**Assessment Template** è il *template modificabile di un assessment* — la bozza che il docente prepara prima di pubblicarla. Contiene le regole della verifica (durata, punteggio, quante domande estrarre, se mescolare le risposte) ma non le domande stesse, che stanno nell'entità **Question**.
 
 Un assessment può essere di tre tipi:
 
@@ -42,7 +43,7 @@ Un assessment può essere di tre tipi:
 - **TRAINING** — pratica libera per argomento. Lo studente sceglie cosa esercitare, nessun timer, nessun esito formale.
 - **EXAM** — prova formale del docente, in aula o a casa. Checkpoint periodico con timer, esito. Sta al docente deciderne la valenza.
 
-Il docente può modificare liberamente un **Assessment Template** finché non decide di pubblicarlo. Al momento della pubblicazione, il sistema crea una **copia congelata** di quel template — chiamata **Assessment Snapshot** — che diventa la versione somministrata agli studenti.
+Il docente può modificare liberamente un **Assessment Template** finché non decide di pubblicarlo. Al momento della pubblicazione, il sistema crea una *copia congelata* di quel template — chiamata **Assessment Snapshot** — che diventa la versione somministrata agli studenti.
 
 :::tip
 *Immagina una fotocopia: il template è il foglio originale che il docente può correggere e riscrivere quante volte vuole. Quando decide che è pronto, il sistema "fotocopia" tutto — domande, opzioni, punteggi — in uno snapshot immutabile. Gli studenti svolgono la verifica sulla fotocopia, non sull'originale. Se il docente modifica l'originale dopo e ripubblica, viene creata una nuova versione dello snapshot (v2, v3...) senza toccare le verifiche già fatte sulla versione precedente.*
@@ -56,11 +57,14 @@ Il docente inserisce N domande nell'assessment (es. 50). Il campo `questions_per
 
 - Quando `shuffle_questions = false` e `shuffle_options = false`, l'assessment è identico per tutti — utile per un EXAM in aula dove il docente vuole lo stesso ordine.
 - `max_attempts = 1` rende l'assessment one-shot (tipico per EXAM). `NULL` = illimitato (tipico per TRAINING e CERT_SIMULATION).
-- La finestra di disponibilità (quando gli studenti possono accedere) non è su questa tabella: è sulla tabella `class_test`, che rappresenta l'assegnazione di uno snapshot a una classe. Questo permette di assegnare lo stesso test con finestre diverse per classi diverse.
+- La finestra di disponibilità (quando gli studenti possono accedere) non è su questa tabella: è sulla tabella **Class Test**, che rappresenta l'assegnazione di uno snapshot a una classe. Questo permette di assegnare lo stesso test con finestre diverse per classi diverse.
+
+</details>
 
 ---
 
-### Assessment Template Subject
+<details>
+<summary><h3 style={{display: 'inline'}}>Assessment Template Subject</h3></summary>
 
 > **Tabella SQL:** `assessment_template_subject`
 >
@@ -68,17 +72,19 @@ Il docente inserisce N domande nell'assessment (es. 50). Il campo `questions_per
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
-| `assessment_template_id` | UUID | PK, FK | Riferimento all'assessment template | `a-python` |
-| `subject_id` | UUID | PK, FK | Riferimento all'argomento | `s-variables` |
+| `assessment_template_id` | UUID | PK, FK | Riferimento all'**Assessment Template** | `a-python` |
+| `subject_id` | UUID | PK, FK | Riferimento al **Subject** | `s-variables` |
 
-L'**Assessment Template Subject** è una tabella di join che lega un **Assessment Template** ai suoi argomenti macro. Serve a dichiarare "questo assessment copre questi argomenti" — ad esempio "Python Foundation" copre "Variabili e tipi", "Controllo di flusso", "Funzioni".
+L'**Assessment Template Subject** è una tabella di join che lega un **Assessment Template** ai suoi argomenti macro. Serve a dichiarare *"questo assessment copre questi argomenti"* — ad esempio *"Python Foundation"* copre *"Variabili e tipi"*, *"Controllo di flusso"*, *"Funzioni"*.
 
 La chiave primaria è composta da entrambe le FK — un assessment non può essere legato due volte allo stesso argomento. La relazione è M:N: un assessment copre più argomenti, e uno stesso argomento può appartenere a più assessment.
 
 :::tip
-*Non confondere con `question_subject`: quella lega una singola **domanda** a un argomento (con un peso). Questa lega l'intero **assessment** a un argomento. Servono a livelli diversi: `assessment_template_subject` dice "di cosa parla il test nel suo insieme", `question_subject` dice "di cosa parla questa domanda specifica". I due insiemi non sono necessariamente uguali — una domanda potrebbe coprire un sotto-argomento (es. "List comprehension") che non è nei subject dell'assessment.*
+*Non confondere con **Question Subject**: quella lega una singola **Question** a un argomento (con un peso). Questa lega l'intero **Assessment Template** a un argomento. Servono a livelli diversi: **Assessment Template Subject** dice *"di cosa parla il test nel suo insieme"*, **Question Subject** dice *"di cosa parla questa domanda specifica"*. I due insiemi non sono necessariamente uguali — una domanda potrebbe coprire un sotto-argomento (es. "List comprehension") che non è nei subject dell'assessment.*
 :::
 
-Al momento della pubblicazione, le associazioni `assessment_template_subject` vengono copiate nella tabella `assessment_snapshot_subject`, che congela gli argomenti macro dello snapshot indipendentemente dalle domande.
+Al momento della pubblicazione, le associazioni **Assessment Template Subject** vengono copiate nella tabella **Assessment Snapshot Subject**, che congela gli argomenti macro dello snapshot indipendentemente dalle domande.
+
+</details>
 
 ---
