@@ -1,0 +1,322 @@
+// =============================================================================
+// Testero — Modello Dati Completo
+// Versione unica con note in italiano e dati di esempio
+// Luglio 2026
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+//  UTENTI E RUOLI
+//  Chi usa il sistema, con quale ruolo, in quale classe
+// ---------------------------------------------------------------------------
+
+Table app_user [headercolor: #4A90D9, note: 'Account utente — ogni persona nel sistema ha un record qui. Es: { name: "Alice Rossi", username: "a.rossi", email: null }'] {
+  id uuid [pk]
+  name varchar [not null, note: 'Nome completo. Es: "Alice Rossi"']
+  username varchar [not null, unique, note: 'Identificativo di login, univoco. Es: "a.rossi"']
+  password_hash varchar [not null, note: 'Hash bcrypt della password. Mai in chiaro']
+  email varchar [unique, note: 'Opzionale. Es: "d.fella@scuola.it" o NULL']
+  must_change_password boolean [not null, default: false, note: 'Se true, al login viene forzato il cambio password']
+  password_expires_at timestamp [note: 'Scadenza della password. NULL = nessuna scadenza']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table app_role [headercolor: #4A90D9, note: 'Ruoli fissi del sistema, creati all avvio. Valori: ADMIN, TEACHER, STUDENT'] {
+  id uuid [pk]
+  name varchar [not null, unique, note: 'Es: "STUDENT"']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table app_user_role [headercolor: #4A90D9, note: 'Assegna un ruolo a un utente (M:N). Es: { user: "a.rossi", role: "STUDENT" }'] {
+  user_id uuid [pk, ref: > app_user.id]
+  role_id uuid [pk, ref: > app_role.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_class [headercolor: #4A90D9, note: 'Classe o sezione scolastica. Es: { name: "SW-2026" }'] {
+  id uuid [pk]
+  name varchar [not null, note: 'Es: "SW-2026"']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table student_profile [headercolor: #4A90D9, note: 'Lega uno studente alla sua classe (1 studente = 1 classe). Es: { user: "a.rossi", class: "SW-2026" }'] {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > app_user.id, note: '1 profilo per utente']
+  class_id uuid [not null, ref: > user_class.id, note: 'La classe di appartenenza']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table teacher_profile [headercolor: #4A90D9, note: 'Segna un utente come docente (1:1 con app_user). Es: { user: "d.fella" }'] {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > app_user.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table teacher_class [headercolor: #4A90D9, note: 'Docente insegna in N classi (M:N). Es: { user: "d.fella", class: "SW-2026" }'] {
+  user_id uuid [pk, ref: > app_user.id]
+  class_id uuid [pk, ref: > user_class.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica per utente. Es: { user: "a.rossi", type: "EXAM_RESULT", enabled: true }'] {
+  id uuid [pk]
+  user_id uuid [not null, ref: > app_user.id]
+  type varchar(50) [not null, note: 'EXAM_RESULT | DEADLINE_REMINDER | PRODUCT_NEWS']
+  enabled boolean [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  ASSESSMENT — template mutabili
+//  Come e strutturato un assessment: domande, opzioni, argomenti
+// ---------------------------------------------------------------------------
+
+Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza modificabile dal docente. Es: { title: "Python Foundation", timer: 30min, estrae: 20, +1.00/-0.25/0 punti, tipo: CERT_SIMULATION }'] {
+  id uuid [pk]
+  title varchar [not null, note: 'Es: "Reti di Calcolatori"']
+  assessment_description text [note: 'Descrizione visibile allo studente prima di iniziare. Nullable']
+  timer_minutes int [not null, note: 'Durata in minuti. 0 = senza timer']
+  questions_per_assessment int [not null, note: 'Quante ne estrae per studente. Es: 20']
+  pts_correct decimal [not null, note: 'Punti per corretta. Es: 1.00']
+  pts_wrong decimal [not null, note: 'Punti per errata (negativo). Es: -0.25']
+  pts_unanswered decimal [not null, default: 0, note: 'Punti per non risposta. Es: 0']
+  max_attempts int [note: 'Numero massimo di tentativi. NULL = illimitati']
+  shuffle_questions boolean [not null, default: true, note: 'Se true, le domande vengono mescolate']
+  shuffle_options boolean [not null, default: true, note: 'Se true, le opzioni vengono mescolate']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  type varchar(20) [not null, default: 'CERT_SIMULATION', note: 'CERT_SIMULATION = simulazione certificazione, EXAM = esame, TRAINING = allenamento']
+  passing_score decimal [note: 'Soglia di sufficienza. Es: 12.00']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_template [headercolor: #2ECC71, note: 'Domanda nel pool di un assessment. Es: { text: "Quanti livelli ha il modello OSI?", type: MULTIPLE_CHOICE, difficulty: BEGINNER }'] {
+  id uuid [pk]
+  assessment_template_id uuid [not null, ref: > assessment_template.id, note: 'Assessment di appartenenza']
+  type varchar [not null, note: 'MULTIPLE_CHOICE | SHORT_ANSWER']
+  text text [not null, note: 'Testo della domanda']
+  code text [note: 'Snippet di codice, se presente']
+  explanation text [note: 'Spiegazione didattica, visibile solo nel ripasso post-consegna']
+  position int [not null, note: 'Ordine nel pool']
+  points decimal(5,2) [note: 'Punti custom. Se NULL usa pts_correct dell assessment']
+  difficulty varchar(20) [note: 'Difficolta della singola domanda']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table option_template [headercolor: #2ECC71, note: 'Opzione di risposta. Es: { text: "7", is_correct: true, is_fallback: false }'] {
+  id uuid [pk]
+  question_template_id uuid [not null, ref: > question_template.id]
+  text varchar [not null, note: 'Es: "TCP" oppure "Nessuna delle precedenti"']
+  is_correct boolean [not null, note: 'true = risposta giusta']
+  is_fallback boolean [not null, note: 'true = opzione tipo "Nessuna delle precedenti", va sempre in fondo nello shuffle']
+  position int [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table subject [headercolor: #2ECC71, note: 'Argomento o tag. Es: { label: "Modello OSI" }, { label: "TCP/IP" }'] {
+  id uuid [pk]
+  label varchar [not null, note: 'Es: "Modello OSI"']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_template_subject [headercolor: #2ECC71, note: 'Lega domanda ad argomento con peso. Es: { question: "Livelli OSI?", subject: "Modello OSI", weight: 1.00 }'] {
+  question_template_id uuid [pk, ref: > question_template.id]
+  subject_id uuid [pk, ref: > subject.id]
+  weight decimal(5,2) [not null, default: 1.00, note: 'Peso per il breakdown punteggio per argomento']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table assessment_template_subject [headercolor: #2ECC71, note: 'Argomenti macro dell assessment (M:N). Es: { assessment: "Python Foundation", subject: "Variabili e tipi" }'] {
+  assessment_template_id uuid [pk, ref: > assessment_template.id]
+  subject_id uuid [pk, ref: > subject.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table topic [headercolor: #2ECC71, note: 'Macro-argomento per la sezione Allenamento. Es: { title: "Reti di Calcolatori", abbreviation: "RETI", enabled: true }'] {
+  id uuid [pk]
+  title varchar(200) [not null, note: 'Es: "Reti di Calcolatori"']
+  description text [note: 'Descrizione opzionale']
+  abbreviation varchar(4) [note: 'Sigla breve. Es: "RETI"']
+  position int [note: 'Ordine nella lista']
+  enabled boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table topic_subject [headercolor: #2ECC71, note: 'Capitoli di un topic = subject raggruppati. Es: { topic: "Reti", subject: "Modello OSI", position: 1 }'] {
+  topic_id uuid [pk, ref: > topic.id]
+  subject_id uuid [pk, ref: > subject.id]
+  position int [note: 'Ordine del capitolo nel topic']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  SNAPSHOT — copie immutabili
+//  Quando il docente pubblica, il sistema congela una copia.
+//  Le submission fanno sempre riferimento allo snapshot, mai al template.
+// ---------------------------------------------------------------------------
+
+Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell assessment al publish. Es: { title: "Reti di Calcolatori", version: 1, hash: "a3f8c2...", assessment_id: null per training }'] {
+  id uuid [pk]
+  assessment_id uuid [ref: > assessment_template.id, note: 'NULL per sessioni di training (nessun assessment padre)']
+  content_hash varchar(64) [not null, note: 'SHA-256 del contenuto. Se uguale al precedente, riusa lo snapshot']
+  version int [not null, note: 'Versione progressiva: 1, 2, 3...']
+  title varchar [not null]
+  timer_minutes int [not null]
+  questions_per_assessment int [not null]
+  pts_correct decimal [not null]
+  pts_wrong decimal [not null]
+  difficulty varchar(20)
+  type varchar(20) [not null, default: 'CERT_SIMULATION']
+  passing_score decimal
+  published_at timestamp [not null, note: 'Quando e stato pubblicato']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda. Es: { text: "Quanti livelli ha OSI?", original: q1, points: null }'] {
+  id uuid [pk]
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
+  original_question_id uuid [ref: > question_template.id, note: 'Riferimento all originale (nullable)']
+  type varchar [not null]
+  text text [not null]
+  code text
+  explanation text
+  position int [not null]
+  points decimal(5,2)
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table option_snapshot [headercolor: #E67E22, note: 'Copia congelata dell opzione. Es: { text: "7", is_correct: true }'] {
+  id uuid [pk]
+  question_snapshot_id uuid [not null, ref: > question_snapshot.id]
+  original_option_id uuid [ref: > option_template.id, note: 'Riferimento all originale (nullable)']
+  text varchar [not null]
+  is_correct boolean [not null]
+  is_fallback boolean [not null]
+  position int [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata del legame domanda-argomento. Es: { question_snapshot: qs1, subject: "Modello OSI", weight: 1.00 }'] {
+  question_snapshot_id uuid [pk, ref: > question_snapshot.id]
+  subject_id uuid [pk, ref: > subject.id]
+  weight decimal(5,2) [not null, default: 1.00]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata degli argomenti macro dell assessment. Es: { snapshot: v1, subject: "Variabili e tipi" }'] {
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  subject_id uuid [pk, ref: > subject.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table class_test [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe con finestra di disponibilita. Es: { class: "SW-2026", snapshot: v1, dal venerdi alla domenica }'] {
+  class_id uuid [pk, ref: > user_class.id]
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  available_from timestamp [note: 'Da quando gli studenti possono accedere. NULL = subito']
+  available_until timestamp [note: 'Fino a quando. NULL = nessuna scadenza']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ---------------------------------------------------------------------------
+//  SUBMISSION — somministrazioni e risposte
+//  Cosa succede quando uno studente svolge un assessment
+// ---------------------------------------------------------------------------
+
+Table submission [headercolor: #9B59B6, note: 'Una somministrazione. Es: { user: "a.rossi", snapshot: v1, status: SUBMITTED, score: 16.50, durata: 23 min }'] {
+  id uuid [pk]
+  user_id uuid [not null, ref: > app_user.id, note: 'Chi sta svolgendo']
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id, note: 'Quale versione del test']
+  status varchar [not null, default: 'IN_PROGRESS', note: 'IN_PROGRESS → SUBMITTED (consegna manuale) o AUTO_CLOSED (timer scaduto)']
+  started_at timestamp [note: 'Quando ha cliccato Avvia']
+  submitted_at timestamp [note: 'Quando ha consegnato']
+  score double [note: 'Punteggio totale, calcolato alla consegna']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_answer [headercolor: #9B59B6, note: 'Risposta a una domanda. Es: { type: MULTIPLE_CHOICE, flagged: false, is_correct: true, points: 1.00 }'] {
+  id uuid [pk]
+  submission_id uuid [not null, ref: > submission.id]
+  question_snapshot_id uuid [not null, ref: > question_snapshot.id, note: 'Quale domanda']
+  type varchar [not null, note: 'Tipo di risposta']
+  text text [note: 'Risposta testuale (per domande aperte)']
+  motivation text [note: 'Motivazione aggiuntiva']
+  flagged boolean [not null, note: 'Lo studente l ha segnata "da rivedere"']
+  is_correct boolean [note: 'Calcolato dal server alla consegna. NULL durante lo svolgimento']
+  points_awarded double [note: 'Punti assegnati. NULL durante lo svolgimento']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_answer_selected_option [headercolor: #9B59B6, note: 'Opzioni selezionate dallo studente. Es: { answer: ans1, option: "7" (corretta) }'] {
+  id uuid [pk]
+  answer_id uuid [not null, ref: > user_answer.id]
+  option_snapshot_id uuid [not null, ref: > option_snapshot.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (answer_id, option_snapshot_id) [unique]
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  GRUPPI DI TABELLE
+// ---------------------------------------------------------------------------
+
+TableGroup utenti_e_ruoli [color: #4A90D9] {
+  app_user
+  app_role
+  app_user_role
+  user_class
+  student_profile
+  teacher_profile
+  teacher_class
+  notification_preference
+}
+
+TableGroup assessment_template [color: #2ECC71] {
+  assessment_template
+  question_template
+  option_template
+  subject
+  question_template_subject
+  assessment_template_subject
+  topic
+  topic_subject
+}
+
+TableGroup snapshot_immutabili [color: #E67E22] {
+  assessment_snapshot
+  question_snapshot
+  option_snapshot
+  question_snapshot_subject
+  assessment_snapshot_subject
+  class_test
+}
+
+TableGroup submission_risposte [color: #9B59B6] {
+  submission
+  user_answer
+  user_answer_selected_option
+}
