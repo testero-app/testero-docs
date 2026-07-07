@@ -674,3 +674,100 @@ La stessa snapshot può essere assegnata a classi diverse con finestre diverse �
 </details>
 
 ---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Submission</h3></summary>
+
+> **Tabella SQL:** `submission`
+>
+> **Collegata a:** `app_user`, `assessment_snapshot`, `user_answer`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `sub-01` |
+| `user_id` | UUID | NN, FK | Chi sta svolgendo — riferimento all'**App User** | `u-alice` |
+| `assessment_snapshot_id` | UUID | NN, FK | Quale snapshot — riferimento all'**Assessment Snapshot** | `snap-01` |
+| `status` | VARCHAR | NN | Stato corrente (enum) | `IN_PROGRESS` |
+| `started_at` | TIMESTAMP | NL | Quando lo studente ha cliccato *"Avvia"* | `2026-07-10 09:05` |
+| `submitted_at` | TIMESTAMP | NL | Quando ha consegnato o il timer è scaduto | `2026-07-10 09:28` |
+| `score` | DOUBLE | NL | Punteggio totale, calcolato alla consegna | `16.50` |
+
+La **Submission** rappresenta una singola somministrazione: uno studente che svolge un assessment. Nasce quando lo studente clicca *"Avvia"* e attraversa 3 stati:
+
+- **IN_PROGRESS** — lo studente sta svolgendo, le risposte vengono salvate in background
+- **SUBMITTED** — lo studente ha consegnato manualmente
+- **AUTO_CLOSED** — il timer è scaduto, il sistema ha chiuso automaticamente
+
+Il campo `score` è NULL durante lo svolgimento — viene calcolato dal server alla consegna come somma dei `points_awarded` di tutte le **User Answer**. È un campo ridondante per performance: la fonte di verità è sempre ricostruibile dagli snapshot.
+
+La **Submission** fa sempre riferimento a un **Assessment Snapshot**, mai al template. Questo garantisce che i risultati riflettano la versione esatta del test come è stato somministrato.
+
+:::tip
+*Tutte le entità della somministrazione (Submission, User Answer, User Answer Selected Option) puntano alle tabelle snapshot, non ai template. È il principio di immutabilità: il test che lo studente ha svolto non può cambiare retroattivamente, anche se il docente modifica il template e ripubblica.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>User Answer</h3></summary>
+
+> **Tabella SQL:** `user_answer`
+>
+> **Collegata a:** `submission`, `question_snapshot`, `user_answer_selected_option`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `ans-01` |
+| `submission_id` | UUID | NN, FK | Riferimento alla **Submission** | `sub-01` |
+| `question_snapshot_id` | UUID | NN, FK | Quale domanda — riferimento al **Question Snapshot** | `qs-01` |
+| `type` | VARCHAR | NN | Tipo di risposta | `MULTIPLE_CHOICE` |
+| `text` | TEXT | NL | Risposta testuale (per domande aperte) | *"La keyword def..."* |
+| `motivation` | TEXT | NL | Motivazione aggiuntiva | *"Perché def è..."* |
+| `flagged` | BOOLEAN | NN | Lo studente l'ha segnata *"da rivedere"* | `false` |
+| `is_correct` | BOOLEAN | NL | Correttezza, calcolata alla consegna. NULL durante lo svolgimento | `true` |
+| `points_awarded` | DOUBLE | NL | Punti assegnati, calcolati alla consegna. NULL durante lo svolgimento | `1.00` |
+
+La **User Answer** è la risposta dello studente a una singola domanda. Viene creata o aggiornata ad ogni salvataggio automatico durante lo svolgimento.
+
+I campi `is_correct` e `points_awarded` sono **NULL durante lo svolgimento** — vengono calcolati dal server al momento della consegna:
+
+- Risposta corretta → `points_awarded = pts_correct` dello snapshot (o `points` della domanda se personalizzati)
+- Risposta errata → `points_awarded = pts_wrong`
+- Non risposta → `points_awarded = pts_unanswered`
+
+Per le domande a scelta multipla, il server confronta le opzioni selezionate (in **User Answer Selected Option**) con quelle corrette nello snapshot. Per le domande aperte, il campo `text` contiene la risposta e la correzione è manuale.
+
+Il campo `flagged` permette allo studente di segnare una domanda come *"da rivedere"* — appare come chip colorato nella mappa domande durante lo svolgimento.
+
+:::tip
+*Sia `is_correct` che `points_awarded` sono ridondanti: sono derivabili dai dati dello snapshot. Vengono persistiti per evitare di ricalcolare ad ogni lettura, ma la fonte di verità è sempre ricostruibile.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>User Answer Selected Option</h3></summary>
+
+> **Tabella SQL:** `user_answer_selected_option`
+>
+> **Collegata a:** `user_answer`, `option_snapshot`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `sel-01` |
+| `answer_id` | UUID | NN, FK | Riferimento alla **User Answer** | `ans-01` |
+| `option_snapshot_id` | UUID | NN, FK | Quale opzione selezionata — riferimento all'**Option Snapshot** | `os-01` |
+
+La **User Answer Selected Option** registra quale opzione lo studente ha selezionato per una domanda a scelta multipla. Il vincolo UNIQUE su `(answer_id, option_snapshot_id)` impedisce di selezionare la stessa opzione due volte.
+
+Per ogni **User Answer** di tipo MULTIPLE_CHOICE c'è tipicamente un solo record qui (selezione singola). Il modello supporta anche la selezione multipla — in quel caso ci sarebbero più record con lo stesso `answer_id`.
+
+Al momento della consegna, il server confronta l'`option_snapshot_id` selezionato con il campo `is_correct` dell'**Option Snapshot** per determinare se la risposta è giusta.
+
+</details>
+
+---
