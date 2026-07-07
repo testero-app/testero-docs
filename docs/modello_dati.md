@@ -556,3 +556,86 @@ Il vincolo UNIQUE su `(user_id, event, channel)` impedisce duplicati.
 </details>
 
 ---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>User Class</h3></summary>
+
+> **Tabella SQL:** `user_class`
+>
+> **Collegata a:** `student_profile`, `teacher_class`, `class_test`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Identificativo univoco | `cl-sw26` |
+| `name` | VARCHAR | NN | Nome della classe | *"SW-2026"* |
+
+La **User Class** rappresenta una classe o sezione scolastica — ad esempio *"SW-2026"*, *"DS-2025"*. È il contenitore organizzativo a cui vengono iscritti gli studenti e a cui il docente assegna gli assessment.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Student Profile</h3></summary>
+
+> **Tabella SQL:** `student_profile`
+>
+> **Collegata a:** `app_user`, `user_class`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `sp-alice` |
+| `user_id` | UUID | NN, UQ, FK | Riferimento all'**App User** | `u-alice` |
+| `class_id` | UUID | NN, FK | Riferimento alla **User Class** | `cl-sw26` |
+
+Lo **Student Profile** collega un utente con ruolo STUDENT alla sua classe. La relazione con **App User** è 1:1 (vincolo UNIQUE su `user_id`): ogni studente ha un solo profilo e appartiene a una sola classe.
+
+Se uno studente cambia classe (es. trasferimento), si aggiorna il `class_id` — non si crea un nuovo profilo.
+
+:::tip
+*Lo studente appartiene a **una sola** classe. Questa scelta semplifica il modello: quando il sistema deve mostrare gli assessment disponibili, basta guardare la classe dello studente e trovare gli snapshot assegnati a quella classe tramite **Class Test**.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Teacher Profile</h3></summary>
+
+> **Tabella SQL:** `teacher_profile`
+>
+> **Collegata a:** `app_user`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `tp-davide` |
+| `user_id` | UUID | NN, UQ, FK | Riferimento all'**App User** | `u-davide` |
+
+Il **Teacher Profile** segna un utente come docente. La relazione con **App User** è 1:1. A differenza dello studente, il docente non ha un `class_id` diretto: le classi in cui insegna sono gestite dalla tabella **Teacher Class**.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Teacher Class</h3></summary>
+
+> **Tabella SQL:** `teacher_class`
+>
+> **Collegata a:** `app_user`, `user_class`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `user_id` | UUID | PK, FK | Riferimento all'**App User** (docente) | `u-davide` |
+| `class_id` | UUID | PK, FK | Riferimento alla **User Class** | `cl-sw26` |
+
+La **Teacher Class** è la tabella di join M:N tra docente e classi. Un docente può insegnare in più classi; una classe può avere più docenti.
+
+:::tip
+*Perché lo studente ha `class_id` diretto e il docente no? Lo studente appartiene a **una sola** classe → basta una FK in **Student Profile**. Il docente insegna in **più classi** → serve una tabella di join **Teacher Class** (relazione M:N). Entrambi puntano a **User Class**, ma con meccanismi diversi.*
+:::
+
+</details>
+
+---
