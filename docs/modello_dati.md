@@ -205,7 +205,7 @@ Al momento della pubblicazione, queste associazioni vengono copiate nella tabell
 
 > **Tabella SQL:** `assessment_snapshot`
 >
-> **Collegata a:** `assessment_template`, `question_snapshot`, `assessment_snapshot_subject`, `class_test`, `submission`
+> **Collegata a:** `assessment_template`, `question_snapshot`, `assessment_snapshot_subject`, `class_assessment_assignment`, `submission`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
@@ -562,7 +562,7 @@ Il vincolo UNIQUE su `(user_id, event, channel)` impedisce duplicati.
 
 > **Tabella SQL:** `user_class`
 >
-> **Collegata a:** `student_profile`, `teacher_class`, `class_test`
+> **Collegata a:** `student_profile`, `teacher_class`, `class_assessment_assignment`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
@@ -635,6 +635,41 @@ La **Teacher Class** è la tabella di join M:N tra docente e classi. Un docente 
 :::tip
 *Perché lo studente ha `class_id` diretto e il docente no? Lo studente appartiene a **una sola** classe → basta una FK in **Student Profile**. Il docente insegna in **più classi** → serve una tabella di join **Teacher Class** (relazione M:N). Entrambi puntano a **User Class**, ma con meccanismi diversi.*
 :::
+
+</details>
+
+---
+
+## Somministrazione Area
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Class Assessment Assignment</h3></summary>
+
+> **Tabella SQL:** `class_assessment_assignment`
+>
+> **Collegata a:** `user_class`, `assessment_snapshot`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `class_id` | UUID | PK, FK | Riferimento alla **User Class** | `cl-sw26` |
+| `assessment_snapshot_id` | UUID | PK, FK | Riferimento all'**Assessment Snapshot** | `snap-01` |
+| `available_from` | TIMESTAMP | NL | Da quando gli studenti possono accedere. NULL = subito | `2026-07-10 08:00` |
+| `available_until` | TIMESTAMP | NL | Fino a quando. NULL = nessuna scadenza | `2026-07-12 23:59` |
+
+La **Class Assessment Assignment** è il ponte tra *"il test è pronto"* e *"gli studenti lo vedono"*. Assegna un **Assessment Snapshot** a una **User Class** con una finestra di disponibilità.
+
+Il docente pubblica uno snapshot, poi lo attiva per una o più classi. Da quel momento gli studenti di quelle classi vedono l'assessment nella sezione Certificazioni o Esami.
+
+I campi `available_from` e `available_until` definiscono quando l'assessment è accessibile:
+
+| Scenario | available_from | available_until |
+|---|---|---|
+| Solo nel weekend | ven 18:00 | dom 23:59 |
+| Un giorno specifico | 10 lug 10:00 | 10 lug 12:00 |
+| Da una certa data in poi | 10 lug 08:00 | NULL |
+| Sempre disponibile | NULL | NULL |
+
+La stessa snapshot può essere assegnata a classi diverse con finestre diverse — ad esempio *"SW-2026 fa il test questa settimana, SW-2025 la prossima"*.
 
 </details>
 
