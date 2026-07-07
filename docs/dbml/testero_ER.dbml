@@ -65,13 +65,18 @@ Table teacher_class [headercolor: #4A90D9, note: 'Docente insegna in N classi (M
   updated_at timestamp [not null]
 }
 
-Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica per utente. Es: { user: "a.rossi", type: "EXAM_RESULT", enabled: true }'] {
+Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica per utente. Es: { user: "a.rossi", event: "EXAM_RESULT", channel: "IN_APP", enabled: true }'] {
   id uuid [pk]
   user_id uuid [not null, ref: > app_user.id]
-  type varchar(50) [not null, note: 'EXAM_RESULT | DEADLINE_REMINDER | PRODUCT_NEWS']
+  event varchar(50) [not null, note: 'EXAM_RESULT | CERT_SIMULATION_RESULT | NEW_ASSESSMENT | DEADLINE_REMINDER | ALL_SUBMITTED']
+  channel varchar(20) [not null, note: 'IN_APP | EMAIL']
   enabled boolean [not null]
   created_at timestamp [not null]
   updated_at timestamp [not null]
+
+  indexes {
+    (user_id, event, channel) [unique]
+  }
 }
 
 // ---------------------------------------------------------------------------

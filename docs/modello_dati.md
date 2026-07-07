@@ -512,3 +512,47 @@ La relazione è M:N: un utente può tecnicamente avere più ruoli (es. ADMIN + T
 </details>
 
 ---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Notification Preference</h3></summary>
+
+> **Tabella SQL:** `notification_preference`
+>
+> **Collegata a:** `app_user`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `np-01` |
+| `user_id` | UUID | NN, FK | Riferimento all'**App User** | `u-alice` |
+| `event` | VARCHAR(50) | NN | Cosa è successo (enum) | `EXAM_RESULT` |
+| `channel` | VARCHAR(20) | NN | Dove notificare (enum) | `IN_APP` |
+| `enabled` | BOOLEAN | NN | Se la notifica è attiva | `true` |
+
+La **Notification Preference** memorizza le preferenze di notifica per ciascun utente, separando *cosa* notificare (evento) da *come* (canale).
+
+**Eventi disponibili:**
+
+| Evento | Chi | Descrizione |
+|---|---|---|
+| `EXAM_RESULT` | Studente | Risultato di un esame del docente |
+| `CERT_SIMULATION_RESULT` | Studente | Risultato di una simulazione di certificazione |
+| `NEW_ASSESSMENT` | Studente | Nuovo assessment assegnato alla classe |
+| `DEADLINE_REMINDER` | Studente | Scadenza imminente |
+| `ALL_SUBMITTED` | Docente | Tutti gli studenti hanno consegnato |
+
+Il training non genera notifiche — lo studente lo fa per sé e vede il risultato subito.
+
+**Canali disponibili:**
+
+| Canale | Descrizione | Default |
+|---|---|---|
+| `IN_APP` | Notifica visibile dentro l'applicazione | Attivo |
+| `EMAIL` | Email inviata all'utente | Disattivato |
+
+I record vengono creati solo quando l'utente modifica le preferenze nella pagina Impostazioni. Se non ha mai interagito, il sistema applica i valori di default (IN_APP attivo, EMAIL disattivato per tutti gli eventi).
+
+Il vincolo UNIQUE su `(user_id, event, channel)` impedisce duplicati.
+
+</details>
+
+---
