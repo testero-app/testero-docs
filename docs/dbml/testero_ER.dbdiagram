@@ -9,158 +9,164 @@
       {
         "name": "app_user",
         "schemaName": "public",
-        "x": 1592,
-        "y": 1864
+        "x": -1040,
+        "y": 24
       },
       {
         "name": "app_role",
         "schemaName": "public",
-        "x": 2120,
-        "y": 896
+        "x": -1545.7277526510156,
+        "y": 688
       },
       {
         "name": "app_user_role",
         "schemaName": "public",
-        "x": 1792,
-        "y": 1128
+        "x": -1544,
+        "y": 464
       },
       {
         "name": "user_class",
         "schemaName": "public",
-        "x": 1200,
-        "y": 1856
+        "x": -360,
+        "y": -399.9875234607234
       },
       {
         "name": "student_profile",
         "schemaName": "public",
-        "x": 1856,
-        "y": 2232
+        "x": -1344,
+        "y": -504
       },
       {
         "name": "teacher_profile",
         "schemaName": "public",
-        "x": 1656,
-        "y": 2664
+        "x": -1758.429878781133,
+        "y": 104
       },
       {
         "name": "teacher_class",
         "schemaName": "public",
-        "x": 1168,
-        "y": 2184
+        "x": -1760,
+        "y": -240
       },
       {
         "name": "notification_preference",
         "schemaName": "public",
-        "x": 1320,
-        "y": 2432
-      },
-      {
-        "name": "test",
-        "schemaName": "public",
-        "x": 608.7406278468836,
-        "y": -372.1870504316227
-      },
-      {
-        "name": "question",
-        "schemaName": "public",
-        "x": 848,
-        "y": 504
-      },
-      {
-        "name": "option",
-        "schemaName": "public",
-        "x": 72,
-        "y": 976
+        "x": -992,
+        "y": 496
       },
       {
         "name": "subject",
         "schemaName": "public",
-        "x": 720,
-        "y": 976
-      },
-      {
-        "name": "question_subject",
-        "schemaName": "public",
-        "x": 48,
-        "y": 664
-      },
-      {
-        "name": "test_subject",
-        "schemaName": "public",
-        "x": 8.045900775200295,
-        "y": -372.1870504316227
+        "x": -184,
+        "y": -720
       },
       {
         "name": "topic",
         "schemaName": "public",
-        "x": 2184,
-        "y": 1256
+        "x": -721.53369140625,
+        "y": -1256
       },
       {
         "name": "topic_subject",
         "schemaName": "public",
-        "x": 1424,
-        "y": 1448
+        "x": -720,
+        "y": -751.0236581981105
       },
       {
         "name": "assessment_snapshot",
         "schemaName": "public",
-        "x": 968,
-        "y": 1152
+        "x": 784,
+        "y": -1272
       },
       {
         "name": "question_snapshot",
         "schemaName": "public",
-        "x": 1296,
-        "y": 624
+        "x": 1632.4657990207545,
+        "y": -1304
       },
       {
         "name": "option_snapshot",
         "schemaName": "public",
-        "x": 400,
-        "y": 680
+        "x": 3392,
+        "y": -1336
       },
       {
         "name": "question_snapshot_subject",
         "schemaName": "public",
-        "x": 1408,
-        "y": 1128
-      },
-      {
-        "name": "class_test",
-        "schemaName": "public",
-        "x": 480,
-        "y": 1376
+        "x": 2431.838134765625,
+        "y": -1208
       },
       {
         "name": "submission",
         "schemaName": "public",
-        "x": 1768,
-        "y": 1424
+        "x": 552,
+        "y": -8
       },
       {
         "name": "user_answer",
         "schemaName": "public",
-        "x": 1800,
-        "y": 416
+        "x": 1504,
+        "y": -38.181778109151196
       },
       {
         "name": "user_answer_selected_option",
         "schemaName": "public",
-        "x": 1305.9831756745298,
-        "y": -358.94856871543607
+        "x": 2632,
+        "y": -704
       },
       {
         "name": "assessment_template",
         "schemaName": "public",
-        "x": 48,
-        "y": 2874
+        "x": 792,
+        "y": -2104
       },
       {
-        "name": "assessment_subject",
+        "name": "question_template",
         "schemaName": "public",
-        "x": 402.09130859375,
-        "y": 2874
+        "x": 1632,
+        "y": -2128
+      },
+      {
+        "name": "option_template",
+        "schemaName": "public",
+        "x": 3394.1792266421526,
+        "y": -1944
+      },
+      {
+        "name": "question_template_subject",
+        "schemaName": "public",
+        "x": 1504,
+        "y": -2616
+      },
+      {
+        "name": "assessment_template_subject",
+        "schemaName": "public",
+        "x": 200,
+        "y": -2104
+      },
+      {
+        "name": "assessment_snapshot_subject",
+        "schemaName": "public",
+        "x": 198.06208494592852,
+        "y": -1120
+      },
+      {
+        "name": "assessment_template_topic",
+        "schemaName": "public",
+        "x": -480,
+        "y": -2288
+      },
+      {
+        "name": "assessment_snapshot_topic",
+        "schemaName": "public",
+        "x": -384,
+        "y": -1672
+      },
+      {
+        "name": "class_assessment_assignment",
+        "schemaName": "public",
+        "x": 488,
+        "y": -400
       }
     ],
     "tableGroupCollapseStates": [],
@@ -209,7 +215,16 @@
         "secondTableName": "student_profile",
         "secondSchemaName": "public",
         "secondRelation": "*",
-        "checkPoints": []
+        "checkPoints": [
+          {
+            "x": -628.672828769148,
+            "y": 72
+          },
+          {
+            "x": -628.672828769148,
+            "y": -352
+          }
+        ]
       },
       {
         "firstFieldNames": [
@@ -284,97 +299,16 @@
         "secondTableName": "notification_preference",
         "secondSchemaName": "public",
         "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "test",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "test_id"
-        ],
-        "secondTableName": "question",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "question",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "question_id"
-        ],
-        "secondTableName": "option",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "question",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "question_id"
-        ],
-        "secondTableName": "question_subject",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "subject",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "subject_id"
-        ],
-        "secondTableName": "question_subject",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "test",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "test_id"
-        ],
-        "secondTableName": "test_subject",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "subject",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "subject_id"
-        ],
-        "secondTableName": "test_subject",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
+        "checkPoints": [
+          {
+            "x": -429.1472005506515,
+            "y": 72
+          },
+          {
+            "x": -429.1472005506515,
+            "y": 576
+          }
+        ]
       },
       {
         "firstFieldNames": [
@@ -410,21 +344,6 @@
         "firstFieldNames": [
           "id"
         ],
-        "firstTableName": "test",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "assessment_id"
-        ],
-        "secondTableName": "assessment_snapshot",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
         "firstTableName": "assessment_snapshot",
         "firstSchemaName": "public",
         "firstRelation": "1",
@@ -440,41 +359,11 @@
         "firstFieldNames": [
           "id"
         ],
-        "firstTableName": "question",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "original_question_id"
-        ],
-        "secondTableName": "question_snapshot",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
         "firstTableName": "question_snapshot",
         "firstSchemaName": "public",
         "firstRelation": "1",
         "secondFieldNames": [
           "question_snapshot_id"
-        ],
-        "secondTableName": "option_snapshot",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "option",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "original_option_id"
         ],
         "secondTableName": "option_snapshot",
         "secondSchemaName": "public",
@@ -515,36 +404,6 @@
         "firstFieldNames": [
           "id"
         ],
-        "firstTableName": "user_class",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "class_id"
-        ],
-        "secondTableName": "class_test",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
-        "firstTableName": "assessment_snapshot",
-        "firstSchemaName": "public",
-        "firstRelation": "1",
-        "secondFieldNames": [
-          "assessment_snapshot_id"
-        ],
-        "secondTableName": "class_test",
-        "secondSchemaName": "public",
-        "secondRelation": "*",
-        "checkPoints": []
-      },
-      {
-        "firstFieldNames": [
-          "id"
-        ],
         "firstTableName": "app_user",
         "firstSchemaName": "public",
         "firstRelation": "1",
@@ -569,7 +428,16 @@
         "secondTableName": "submission",
         "secondSchemaName": "public",
         "secondRelation": "*",
-        "checkPoints": []
+        "checkPoints": [
+          {
+            "x": 1177.8592405992497,
+            "y": -1224
+          },
+          {
+            "x": 1177.8592405992497,
+            "y": 104
+          }
+        ]
       },
       {
         "firstFieldNames": [
@@ -641,7 +509,7 @@
         "secondFieldNames": [
           "assessment_template_id"
         ],
-        "secondTableName": "question",
+        "secondTableName": "question_template",
         "secondSchemaName": "public",
         "secondRelation": "*",
         "checkPoints": []
@@ -650,13 +518,37 @@
         "firstFieldNames": [
           "id"
         ],
-        "firstTableName": "assessment_template",
+        "firstTableName": "question_template",
         "firstSchemaName": "public",
         "firstRelation": "1",
         "secondFieldNames": [
-          "assessment_template_id"
+          "question_template_id"
         ],
-        "secondTableName": "assessment_subject",
+        "secondTableName": "option_template",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 1968.66162109375,
+            "y": -1872.8762825065553
+          },
+          {
+            "x": 3372,
+            "y": -1872.8762825065553
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_template_id"
+        ],
+        "secondTableName": "question_template_subject",
         "secondSchemaName": "public",
         "secondRelation": "*",
         "checkPoints": []
@@ -671,7 +563,115 @@
         "secondFieldNames": [
           "subject_id"
         ],
-        "secondTableName": "assessment_subject",
+        "secondTableName": "question_template_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 1443.0164423240026,
+            "y": -672
+          },
+          {
+            "x": 1443.0164423240026,
+            "y": -2040
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_template_id"
+        ],
+        "secondTableName": "assessment_template_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "assessment_template_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "original_question_id"
+        ],
+        "secondTableName": "question_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 2100.714161073586,
+            "y": -2088
+          },
+          {
+            "x": 2100.714161073586,
+            "y": -1192
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "option_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "original_option_id"
+        ],
+        "secondTableName": "option_snapshot",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "assessment_snapshot_subject",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subject",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subject_id"
+        ],
+        "secondTableName": "assessment_snapshot_subject",
         "secondSchemaName": "public",
         "secondRelation": "*",
         "checkPoints": []
@@ -684,12 +684,138 @@
         "firstSchemaName": "public",
         "firstRelation": "1",
         "secondFieldNames": [
-          "assessment_id"
+          "assessment_template_id"
         ],
         "secondTableName": "assessment_snapshot",
         "secondSchemaName": "public",
         "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 1199.4001358633702,
+            "y": -2064
+          },
+          {
+            "x": 1199.4001358633702,
+            "y": -1192
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_template_id"
+        ],
+        "secondTableName": "assessment_template_topic",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 602.3547463316868,
+            "y": -2056
+          },
+          {
+            "x": 602.3547463316868,
+            "y": -2240
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "topic",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "topic_id"
+        ],
+        "secondTableName": "assessment_template_topic",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 48.22716952543635,
+            "y": -1064
+          },
+          {
+            "x": 48.22716952543635,
+            "y": -2080
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "assessment_snapshot_topic",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
         "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "topic",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "topic_id"
+        ],
+        "secondTableName": "assessment_snapshot_topic",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "user_class",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "class_id"
+        ],
+        "secondTableName": "class_assessment_assignment",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "class_assessment_assignment",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 1177.8592405992497,
+            "y": -1224
+          },
+          {
+            "x": 1177.8592405992497,
+            "y": -320
+          }
+        ]
       }
     ]
   },
