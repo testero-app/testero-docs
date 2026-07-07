@@ -430,3 +430,85 @@ Il campo `position` definisce l'ordine in cui i capitoli appaiono all'interno de
 </details>
 
 ---
+
+## Utenti e Ruoli
+
+<details>
+<summary><h3 style={{display: 'inline'}}>App User</h3></summary>
+
+> **Tabella SQL:** `app_user`
+>
+> **Collegata a:** `app_user_role`, `student_profile`, `teacher_profile`, `teacher_class`, `notification_preference`, `submission`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Identificativo univoco | `u-alice` |
+| `name` | VARCHAR | NN | Nome completo | *"Alice Rossi"* |
+| `username` | VARCHAR | NN, UQ | Identificativo di login | *"a.rossi"* |
+| `password_hash` | VARCHAR | NN | Hash bcrypt della password | `$2b$12$...` |
+| `email` | VARCHAR | UQ | Email, opzionale | *"alice@scuola.it"* |
+| `must_change_password` | BOOLEAN | NN | Se true, forza il cambio al primo login | `false` |
+| `is_active` | BOOLEAN | NN | Se false, il login viene rifiutato. Default true | `true` |
+| `password_expires_at` | TIMESTAMP | NL | Scadenza della password | `NULL` |
+
+L'**App User** è l'entità centrale del sistema: ogni persona — admin, docente o studente — ha esattamente un record qui. Contiene le credenziali di accesso e i dati anagrafici minimi.
+
+Il campo `password_hash` contiene l'hash bcrypt della password — il sistema non conosce mai la password in chiaro. Il campo `email` è opzionale e univoco se presente.
+
+Il campo `must_change_password` viene impostato a `true` quando l'admin crea un utente con una password temporanea. Al primo login il sistema forza lo studente a scegliere una nuova password. Il campo `password_expires_at` permette di impostare una scadenza — se la password scade, lo studente deve cambiarla al login successivo.
+
+Il campo `is_active` permette di disattivare un account senza eliminarlo. Un utente disattivato non può fare login, ma i suoi risultati e le submission passate restano intatti nel sistema.
+
+L'**App User** da solo non ha un ruolo — il ruolo viene assegnato tramite **App User Role**. L'appartenenza a una classe è gestita da **Student Profile** (per gli studenti) o **Teacher Class** (per i docenti).
+
+:::tip
+*Per il GDPR, la cancellazione di un account non è un delete fisico ma un'anonimizzazione: i campi personali (name, username, email) vengono sovrascritti, `is_active` viene messo a false, ma le submission e i risultati restano come record anonimi.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>App Role</h3></summary>
+
+> **Tabella SQL:** `app_role`
+>
+> **Collegata a:** `app_user_role`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `r-student` |
+| `name` | VARCHAR | NN, UQ | Nome del ruolo | *"STUDENT"* |
+
+L'**App Role** definisce i ruoli disponibili nel sistema. I valori sono fissi, creati all'avvio tramite Liquibase:
+
+- **ADMIN** — gestisce il sistema
+- **TEACHER** — crea assessment, gestisce classi
+- **STUDENT** — svolge assessment, si allena
+
+Non vengono mai modificati a runtime.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>App User Role</h3></summary>
+
+> **Tabella SQL:** `app_user_role`
+>
+> **Collegata a:** `app_user`, `app_role`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `user_id` | UUID | PK, FK | Riferimento all'**App User** | `u-alice` |
+| `role_id` | UUID | PK, FK | Riferimento all'**App Role** | `r-student` |
+
+L'**App User Role** è la tabella di join che assegna un ruolo a un utente. La chiave primaria composta impedisce di assegnare lo stesso ruolo due volte allo stesso utente.
+
+La relazione è M:N: un utente può tecnicamente avere più ruoli (es. ADMIN + TEACHER). Nell'uso attuale ogni utente ha un solo ruolo.
+
+</details>
+
+---
