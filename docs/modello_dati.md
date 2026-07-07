@@ -16,7 +16,7 @@ Le entità sono organizzate in 4 aree:
 
 > **Tabella SQL:** `assessment_template`
 >
-> **Collegata a:** `question_template`, `assessment_template_subject`, `assessment_snapshot`
+> **Collegata a:** `question_template`, `assessment_template_subject`, `assessment_template_topic`, `assessment_snapshot`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
@@ -176,6 +176,28 @@ Al momento della pubblicazione, queste associazioni vengono copiate nella tabell
 
 ---
 
+<details>
+<summary><h3 style={{display: 'inline'}}>Assessment Template Topic</h3></summary>
+
+> **Tabella SQL:** `assessment_template_topic`
+>
+> **Collegata a:** `assessment_template`, `topic`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `assessment_template_id` | UUID | PK, FK | Riferimento all'**Assessment Template** | `a-fullstack` |
+| `topic_id` | UUID | PK, FK | Riferimento al **Topic** | `t-python` |
+
+L'**Assessment Template Topic** lega un **Assessment Template** a uno o più **Topic**. Serve a dichiarare *"questo assessment fa parte di questi percorsi didattici"* — ad esempio *"Esame intermedio Full Stack"* copre i topic *"Fondamenti Python"* e *"Fondamenti JavaScript"*.
+
+La relazione è M:N: un assessment può appartenere a più topic, e un topic può avere più assessment collegati. Lo studente che apre un topic vede sia i capitoli per allenarsi sia gli assessment associati (simulazioni, esami).
+
+Al momento della pubblicazione, queste associazioni vengono copiate nella tabella **Assessment Snapshot Topic** con il titolo del topic congelato.
+
+</details>
+
+---
+
 ## Pubblicazione Area
 
 <details>
@@ -307,6 +329,25 @@ Il **Question Snapshot Subject** è la copia congelata delle associazioni **Ques
 
 ---
 
+<details>
+<summary><h3 style={{display: 'inline'}}>Assessment Snapshot Topic</h3></summary>
+
+> **Tabella SQL:** `assessment_snapshot_topic`
+>
+> **Collegata a:** `assessment_snapshot`, `topic`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `assessment_snapshot_id` | UUID | PK, FK | Riferimento all'**Assessment Snapshot** | `snap-01` |
+| `topic_id` | UUID | PK, FK | Riferimento al **Topic** | `t-python` |
+| `title` | VARCHAR(200) | NL | Titolo del topic congelato al momento del publish | *"Fondamenti Python"* |
+
+L'**Assessment Snapshot Topic** è la copia congelata delle associazioni **Assessment Template Topic**. Registra a quali topic era collegato l'assessment al momento della pubblicazione, con il titolo congelato per accuratezza storica.
+
+</details>
+
+---
+
 ## Tassonomia
 
 <details>
@@ -344,7 +385,7 @@ I **Subject** possono anche essere raggruppati in **Topic** tramite la tabella *
 
 > **Tabella SQL:** `topic`
 >
-> **Collegata a:** `topic_subject`
+> **Collegata a:** `topic_subject`, `assessment_template_topic`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|

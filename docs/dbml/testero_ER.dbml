@@ -163,6 +163,13 @@ Table topic_subject [headercolor: #2ECC71, note: 'Capitoli di un topic = subject
   updated_at timestamp [not null]
 }
 
+Table assessment_template_topic [headercolor: #2ECC71, note: 'Assessment collegato a N topic (M:N). Es: { assessment: "Esame Full Stack", topic: "Fondamenti Python" }'] {
+  assessment_template_id uuid [pk, ref: > assessment_template.id]
+  topic_id uuid [pk, ref: > topic.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
 // ---------------------------------------------------------------------------
 //  SNAPSHOT — copie immutabili
 //  Quando il docente pubblica, il sistema congela una copia.
@@ -225,6 +232,14 @@ Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata 
   assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
   subject_id uuid [pk, ref: > subject.id]
   label varchar [note: 'Label del subject congelato al momento del publish']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table assessment_snapshot_topic [headercolor: #E67E22, note: 'Copia congelata dei topic collegati all assessment. Es: { snapshot: v1, topic: "Fondamenti Python", title: "Fondamenti Python" }'] {
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  topic_id uuid [pk, ref: > topic.id]
+  title varchar(200) [note: 'Titolo del topic congelato al momento del publish']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -303,6 +318,7 @@ TableGroup assessment_template [color: #2ECC71] {
   subject
   question_template_subject
   assessment_template_subject
+  assessment_template_topic
   topic
   topic_subject
 }
@@ -313,6 +329,7 @@ TableGroup snapshot_immutabili [color: #E67E22] {
   option_snapshot
   question_snapshot_subject
   assessment_snapshot_subject
+  assessment_snapshot_topic
   class_test
 }
 
