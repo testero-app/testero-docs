@@ -250,7 +250,7 @@ Table assessment_snapshot_topic [headercolor: #E67E22, note: 'Copia congelata de
   updated_at timestamp [not null]
 }
 
-Table class_test [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe con finestra di disponibilita. Es: { class: "SW-2026", snapshot: v1, dal venerdi alla domenica }'] {
+Table class_assessment_assignment [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe con finestra di disponibilita. Es: { class: "SW-2026", snapshot: v1, dal venerdi alla domenica }'] {
   class_id uuid [pk, ref: > user_class.id]
   assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
   available_from timestamp [note: 'Da quando gli studenti possono accedere. NULL = subito']
@@ -336,7 +336,7 @@ TableGroup snapshot_immutabili [color: #E67E22] {
   question_snapshot_subject
   assessment_snapshot_subject
   assessment_snapshot_topic
-  class_test
+  class_assessment_assignment
 }
 
 TableGroup submission_risposte [color: #9B59B6] {
