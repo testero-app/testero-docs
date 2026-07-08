@@ -267,3 +267,52 @@ Il ripasso mostra per ogni domanda:
 </details>
 
 ---
+
+## Notifiche
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Notifiche in-app</h3></summary>
+
+```mermaid
+sequenceDiagram
+    participant S as Studente
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as Database
+
+    Note over S,DB: Dopo la consegna di un EXAM/CERT_SIMULATION
+
+    BE->>DB: SELECT notification_preference<br/>WHERE user_id = ? AND event = ? AND channel = IN_APP
+    DB-->>BE: Preference (o default = enabled)
+
+    alt IN_APP abilitato
+        BE->>DB: INSERT notification (title, message, read=false)
+    end
+
+    Note over S,DB: Lo studente naviga a un'altra pagina
+
+    FE->>BE: GET /api/notifications/count
+    BE->>DB: COUNT notification WHERE user_id = ? AND read = false
+    DB-->>BE: count
+    BE-->>FE: { count: N }
+    FE->>FE: Mostra badge con N sulla campanella
+
+    S->>FE: Clicca sulla campanella
+    FE->>BE: GET /api/notifications/unread
+    BE-->>FE: Lista notifiche non lette
+    FE-->>S: Pannello con notifiche
+
+    S->>FE: Clicca su una notifica
+    FE->>BE: PUT /api/notifications/{id}/read
+    FE->>FE: Aggiorna badge count
+```
+
+**Entità coinvolte:** **Notification**, **Notification Preference**, **Submission**, **Assessment Snapshot**
+
+Le notifiche vengono generate dal server dopo il completamento di un assessment (non per training). Il FE non fa polling: carica il conteggio delle notifiche non lette ad ogni cambio pagina.
+
+Il sistema controlla le **Notification Preference** dell'utente prima di creare la notifica. Se l'utente ha disattivato il canale IN_APP per quell'evento, la notifica non viene creata.
+
+</details>
+
+---
