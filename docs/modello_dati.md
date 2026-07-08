@@ -443,17 +443,20 @@ Il campo `position` definisce l'ordine in cui i capitoli appaiono all'interno de
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
 | `id` | UUID | PK | Identificativo univoco | `u-alice` |
-| `name` | VARCHAR | NN | Nome completo | *"Alice Rossi"* |
-| `username` | VARCHAR | NN, UQ | Identificativo di login | *"a.rossi"* |
+| `first_name` | VARCHAR | NN | Nome | *"Alice"* |
+| `last_name` | VARCHAR | NN | Cognome | *"Rossi"* |
+| `username` | VARCHAR | NN, UQ | Identificativo di login (read-only, assegnato dalla scuola) | *"a.rossi"* |
 | `password_hash` | VARCHAR | NN | Hash bcrypt della password | `$2b$12$...` |
-| `email` | VARCHAR | UQ | Email, opzionale | *"alice@scuola.it"* |
+| `email` | VARCHAR | UQ | Email, opzionale, editabile dallo studente | *"alice@scuola.it"* |
 | `must_change_password` | BOOLEAN | NN | Se true, forza il cambio al primo login | `false` |
 | `is_active` | BOOLEAN | NN | Se false, il login viene rifiutato. Default true | `true` |
 | `password_expires_at` | TIMESTAMP | NL | Scadenza della password | `NULL` |
 
 L'**App User** è l'entità centrale del sistema: ogni persona — admin, docente o studente — ha esattamente un record qui. Contiene le credenziali di accesso e i dati anagrafici minimi.
 
-Il campo `password_hash` contiene l'hash bcrypt della password — il sistema non conosce mai la password in chiaro. Il campo `email` è opzionale e univoco se presente.
+I campi `first_name`, `last_name` e `username` sono **assegnati dalla scuola** e non modificabili dallo studente. Il campo `email` è l'unico dato personale che lo studente può aggiornare tramite la pagina Profilo (`PUT /api/users/me`).
+
+Il campo `password_hash` contiene l'hash bcrypt della password — il sistema non conosce mai la password in chiaro.
 
 Il campo `must_change_password` viene impostato a `true` quando l'admin crea un utente con una password temporanea. Al primo login il sistema forza lo studente a scegliere una nuova password. Il campo `password_expires_at` permette di impostare una scadenza — se la password scade, lo studente deve cambiarla al login successivo.
 
