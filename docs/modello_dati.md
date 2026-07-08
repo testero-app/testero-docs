@@ -394,9 +394,17 @@ I **Subject** possono anche essere raggruppati in **Topic** tramite la tabella *
 | `description` | TEXT | NL | Descrizione opzionale | *"Variabili, tipi, controllo di flusso..."* |
 | `abbreviation` | VARCHAR(4) | NL | Sigla breve | *"Py"* |
 | `position` | INT | | Ordine nella lista | `1` |
+| `parent_id` | UUID | NL, FK | Riferimento al **Topic** padre. NULL = topic radice | `t-python` |
 | `enabled` | BOOLEAN | NN | Se il topic è visibile nella sezione Allenamento. Default true | `true` |
 
-Il **Topic** è un macro-argomento usato nella sezione Allenamento del frontend. Rappresenta un'area didattica ampia (es. *"Fondamenti Python"*, *"Reti di Calcolatori"*) che raggruppa più **Subject** come capitoli.
+Il **Topic** è un contenitore organizzativo che supporta una gerarchia ad albero tramite il campo `parent_id`. Un topic può contenere sotto-topic e **Subject** come foglie.
+
+Esempio di gerarchia:
+- *"Programmazione Software"* (radice, parent = NULL)
+  - *"Python"* (parent = "Programmazione Software")
+    - *"Fondamenti I"* (parent = "Python") → contiene Subject *"Variabili"*, *"Controllo di flusso"*
+  - *"JavaScript"* (parent = "Programmazione Software")
+    - *"Basi"* (parent = "JavaScript") → contiene Subject *"DOM"*, *"Eventi"*
 
 Lo studente nella sezione Allenamento vede la lista dei **Topic** attivi, ognuno con i suoi capitoli (**Subject**). Può selezionare un topic, scegliere quali capitoli esercitare, e avviare una sessione di training.
 
