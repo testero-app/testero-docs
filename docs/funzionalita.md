@@ -316,3 +316,49 @@ Il sistema controlla le **Notification Preference** dell'utente prima di creare 
 </details>
 
 ---
+
+## Competenze
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Mastery per argomento</h3></summary>
+
+```mermaid
+sequenceDiagram
+    participant S as Studente
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as Database
+
+    S->>FE: Apre sezione Competenze
+    FE->>BE: GET /api/competencies
+    BE->>DB: SELECT submission WHERE user_id = ?<br/>AND status IN (SUBMITTED, AUTO_CLOSED)
+    BE->>DB: SELECT assessment_snapshot WHERE type != TRAINING
+    Note over BE: Filtra solo EXAM e CERT_SIMULATION
+
+    BE->>DB: SELECT user_answer per le submission valide
+    BE->>DB: SELECT question_snapshot_subject (subject + weight)
+    BE->>DB: SELECT topic con gerarchia (parent_id)
+    BE->>DB: SELECT topic_subject (topic → subject)
+
+    BE->>BE: Per ogni Subject:<br/>mastery = corrette / totali × 100
+    BE->>BE: Per ogni Topic:<br/>mastery = media dei subject figli
+    BE->>BE: Costruisce albero gerarchico
+
+    BE-->>FE: { topics: [ { title, mastery, children, subjects } ] }
+    FE-->>S: Albero con barre di progresso per topic e subject
+```
+
+**Entità coinvolte:** **Submission**, **User Answer**, **Question Snapshot Subject**, **Subject**, **Topic**, **Topic Subject**
+
+La pagina Competenze mostra la padronanza dello studente per argomento, calcolata dalle submission passate:
+
+- Solo **EXAM** e **CERT_SIMULATION** contano — il **training** è escluso
+- La mastery per **Subject** = percentuale di risposte corrette su tutte le submission
+- La mastery per **Topic** = media delle mastery dei subject figli
+- I **Topic** sono organizzati in una gerarchia ad albero (es. *"Python"* → *"Fondamenti"* → subject)
+
+Se lo studente non ha ancora completato nessuna verifica, la pagina mostra un messaggio invitandolo a completarne una.
+
+</details>
+
+---

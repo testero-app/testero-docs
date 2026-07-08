@@ -172,6 +172,7 @@ Table topic [headercolor: #2ECC71, note: 'Macro-argomento per la sezione Allenam
   description text [note: 'Descrizione opzionale']
   abbreviation varchar(4) [note: 'Sigla breve. Es: "RETI"']
   position int [note: 'Ordine nella lista']
+  parent_id uuid [ref: > topic.id, note: 'Topic padre per gerarchia. NULL = radice']
   enabled boolean [not null, default: true]
   created_at timestamp [not null]
   updated_at timestamp [not null]
