@@ -1,11 +1,12 @@
 # Modello Dati — Testero
 
-Le entità sono organizzate in 4 aree:
+Le entità sono organizzate in 6 aree:
 
-1. **Utenti e ruoli** — chi usa il sistema
-2. **Assessment** — come è strutturato un test
-3. **Pubblicazione** — il meccanismo di snapshot
-4. **Somministrazione** — cosa succede quando lo studente svolge il test
+1. **Assessment** — come è strutturato un test
+2. **Pubblicazione** — il meccanismo di snapshot immutabili
+3. **Tassonomia** — argomenti, topic e gerarchia didattica
+4. **Utenti e ruoli** — chi usa il sistema, credenziali, notifiche
+5. **Somministrazione** — assegnazione, svolgimento e risposte
 
 ---
 

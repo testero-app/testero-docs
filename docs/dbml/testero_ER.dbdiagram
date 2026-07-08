@@ -167,6 +167,12 @@
         "schemaName": "public",
         "x": 488,
         "y": -400
+      },
+      {
+        "name": "notification",
+        "schemaName": "public",
+        "x": -1760,
+        "y": 898
       }
     ],
     "tableGroupCollapseStates": [],
@@ -816,6 +822,36 @@
             "y": -320
           }
         ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "notification",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "topic",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "topic",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
       }
     ]
   },

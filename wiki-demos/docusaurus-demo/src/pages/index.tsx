@@ -100,12 +100,12 @@ function DocLinks() {
   const items = [
     {
       title: '📐 Modello Dati',
-      description: '27 entità in 6 aree. Template, snapshot, tassonomia, utenti, somministrazione.',
+      description: '28 entità in 6 aree. Template, snapshot, tassonomia, utenti, somministrazione.',
       link: '/docs/modello_dati',
     },
     {
       title: '⚙️ Funzionalità',
-      description: 'Diagrammi di sequenza: login, assessment, training, risultati.',
+      description: 'Diagrammi di sequenza: login, assessment, training, risultati, notifiche, competenze.',
       link: '/docs/funzionalita',
     },
   ];
