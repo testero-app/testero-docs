@@ -80,6 +80,21 @@ Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica 
   }
 }
 
+Table notification [headercolor: #4A90D9, note: 'Notifica in-app generata dal sistema. Es: { event: "EXAM_RESULT", title: "Risultato disponibile", read: false }'] {
+  id uuid [pk]
+  user_id uuid [not null, ref: > app_user.id]
+  event varchar(50) [not null, note: 'EXAM_RESULT | CERT_SIMULATION_RESULT | NEW_ASSESSMENT | DEADLINE_REMINDER | ALL_SUBMITTED']
+  title varchar(255) [not null, note: 'Titolo breve della notifica']
+  message text [note: 'Messaggio dettagliato']
+  read boolean [not null, default: false, note: 'Se lo studente l ha letta']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, read) [name: 'idx_notification_user_read']
+  }
+}
+
 // ---------------------------------------------------------------------------
 //  ASSESSMENT — template mutabili
 //  Come e strutturato un assessment: domande, opzioni, argomenti
@@ -316,6 +331,7 @@ TableGroup utenti_e_ruoli [color: #4A90D9] {
   teacher_profile
   teacher_class
   notification_preference
+  notification
 }
 
 TableGroup assessment_template [color: #2ECC71] {

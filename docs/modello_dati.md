@@ -561,6 +561,42 @@ Il vincolo UNIQUE su `(user_id, event, channel)` impedisce duplicati.
 ---
 
 <details>
+<summary><h3 style={{display: 'inline'}}>Notification</h3></summary>
+
+> **Tabella SQL:** `notification`
+>
+> **Collegata a:** `app_user`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Auto-generato | `n-01` |
+| `user_id` | UUID | NN, FK | Destinatario — riferimento all'**App User** | `u-alice` |
+| `event` | VARCHAR(50) | NN | Tipo di evento che ha generato la notifica | `EXAM_RESULT` |
+| `title` | VARCHAR(255) | NN | Titolo breve | *"Risultato esame disponibile"* |
+| `message` | TEXT | NL | Messaggio dettagliato | *"Python Foundation: 18 punti"* |
+| `read` | BOOLEAN | NN | Se lo studente l'ha letta. Default false | `false` |
+
+La **Notification** è un record di notifica in-app generato dal sistema quando si verifica un evento significativo. Viene creata solo se l'utente ha il canale IN_APP attivo per quell'evento (controllato tramite **Notification Preference**).
+
+Il FE carica le notifiche non lette ad ogni cambio pagina (`GET /api/notifications/unread`) e mostra un badge con il conteggio nella top bar. Lo studente può cliccare per aprire il pannello, leggere le notifiche e segnarle come lette.
+
+**Eventi che generano notifiche:**
+
+| Evento | Quando | Destinatario |
+|---|---|---|
+| `EXAM_RESULT` | Lo studente completa un esame | Lo studente |
+| `CERT_SIMULATION_RESULT` | Lo studente completa una simulazione | Lo studente |
+| `NEW_ASSESSMENT` | Il docente assegna un assessment alla classe | Gli studenti della classe |
+| `DEADLINE_REMINDER` | 24h prima della scadenza | Studenti che non hanno completato |
+| `ALL_SUBMITTED` | Tutti gli studenti della classe hanno consegnato | I docenti della classe |
+
+Il training non genera notifiche.
+
+</details>
+
+---
+
+<details>
 <summary><h3 style={{display: 'inline'}}>User Class</h3></summary>
 
 > **Tabella SQL:** `user_class`
