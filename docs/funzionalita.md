@@ -29,7 +29,7 @@ sequenceDiagram
         FE-->>S: "Credenziali non valide"
     else Credenziali valide
         BE->>BE: Genera JWT token
-        BE-->>FE: 200 OK + token + user info
+        BE-->>FE: 200 OK + token + user info (first_name, last_name, ...)
         FE->>FE: Salva token in memoria
         FE-->>S: Redirect a /allenamento
     end
