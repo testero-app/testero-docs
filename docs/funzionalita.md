@@ -330,17 +330,19 @@ sequenceDiagram
     participant DB as Database
 
     S->>FE: Apre sezione Competenze
-    FE->>BE: GET /api/competencies
-    BE->>DB: SELECT submission WHERE user_id = ?<br/>AND status IN (SUBMITTED, AUTO_CLOSED)
+    FE->>BE: GET /api/competencies?from=...&to=...
+    Note over FE,BE: I parametri from e to sono opzionali<br/>(filtro per data submission)
+    BE->>DB: SELECT submission WHERE user_id = ?<br/>AND status IN (SUBMITTED, AUTO_CLOSED)<br/>AND submitted_at BETWEEN from AND to (se presenti)
     BE->>DB: SELECT assessment_snapshot WHERE type != TRAINING
     Note over BE: Filtra solo EXAM e CERT_SIMULATION
 
     BE->>DB: SELECT user_answer per le submission valide
     BE->>DB: SELECT question_snapshot_subject (subject + weight)
+    BE->>DB: SELECT question_snapshot (difficulty per pesatura)
     BE->>DB: SELECT topic con gerarchia (parent_id)
     BE->>DB: SELECT topic_subject (topic → subject)
 
-    BE->>BE: Per ogni Subject:<br/>mastery = corrette / totali × 100
+    BE->>BE: Per ogni Subject:<br/>mastery pesata per difficoltà domanda:<br/>BEGINNER/null = peso 1.0<br/>INTERMEDIATE = peso 1.5<br/>ADVANCED = peso 2.0
     BE->>BE: Per ogni Topic:<br/>mastery = media dei subject figli
     BE->>BE: Costruisce albero gerarchico
 
@@ -348,12 +350,13 @@ sequenceDiagram
     FE-->>S: Albero con barre di progresso per topic e subject
 ```
 
-**Entità coinvolte:** **Submission**, **User Answer**, **Question Snapshot Subject**, **Subject**, **Topic**, **Topic Subject**
+**Entità coinvolte:** **Submission**, **User Answer**, **Question Snapshot**, **Question Snapshot Subject**, **Subject**, **Topic**, **Topic Subject**
 
 La pagina Competenze mostra la padronanza dello studente per argomento, calcolata dalle submission passate:
 
 - Solo **EXAM** e **CERT_SIMULATION** contano — il **training** è escluso
-- La mastery per **Subject** = percentuale di risposte corrette su tutte le submission
+- L'endpoint `GET /api/competencies` accetta i parametri opzionali `from` e `to` (date ISO) per filtrare le submission per intervallo temporale. Se omessi, considera tutte le submission
+- La mastery per **Subject** è **pesata per difficoltà della domanda**: ogni risposta corretta contribuisce con un peso che dipende dal campo `difficulty` del **Question Snapshot** — `BEGINNER` o `null` = 1.0, `INTERMEDIATE` = 1.5, `ADVANCED` = 2.0. La formula è: `mastery = somma(peso delle corrette) / somma(peso di tutte) × 100`
 - La mastery per **Topic** = media delle mastery dei subject figli
 - I **Topic** sono organizzati in una gerarchia ad albero (es. *"Python"* → *"Fondamenti"* → subject)
 

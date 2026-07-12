@@ -257,6 +257,7 @@ Il campo `content_hash` è un hash SHA-256 del contenuto completo (template + do
 | `explanation` | TEXT | NL | Spiegazione congelata | *"La keyword def si usa per..."* |
 | `position` | INT | NN | Posizione congelata | `1` |
 | `points` | DECIMAL | NL | Punti personalizzati congelati | `2.00` |
+| `difficulty` | VARCHAR(20) | NL | Difficoltà congelata dal template | `BEGINNER` |
 
 Il **Question Snapshot** è la copia congelata di una **QuestionTemplate**. Viene creato al momento della pubblicazione copiando tutti i campi dalla domanda originale.
 

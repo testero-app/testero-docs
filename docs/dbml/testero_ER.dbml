@@ -112,7 +112,7 @@ Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza mod
   max_attempts int [note: 'Numero massimo di tentativi. NULL = illimitati']
   shuffle_questions boolean [not null, default: true, note: 'Se true, le domande vengono mescolate']
   shuffle_options boolean [not null, default: true, note: 'Se true, le opzioni vengono mescolate']
-  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED']
   type varchar(20) [not null, default: 'CERT_SIMULATION', note: 'CERT_SIMULATION = simulazione certificazione, EXAM = esame, TRAINING = allenamento']
   passing_score decimal [note: 'Soglia di sufficienza. Es: 12.00']
   created_at timestamp [not null]
@@ -216,7 +216,7 @@ Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell ass
   updated_at timestamp [not null]
 }
 
-Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda. Es: { text: "Quanti livelli ha OSI?", original: q1, points: null }'] {
+Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda. Es: { text: "Quanti livelli ha OSI?", original: q1, points: null, difficulty: "BEGINNER" }'] {
   id uuid [pk]
   assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
   original_question_id uuid [ref: > question_template.id, note: 'Riferimento all originale (nullable)']
@@ -226,6 +226,7 @@ Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della doma
   explanation text
   position int [not null]
   points decimal(5,2)
+  difficulty varchar(20) [note: 'Difficolta congelata dal template. BEGINNER | INTERMEDIATE | ADVANCED']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
