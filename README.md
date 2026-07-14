@@ -20,24 +20,11 @@ docs/
 └── legacy/                          # Documentazione precedente
 ```
 
-## Generare il PDF
-
-Requisiti: [Typst](https://typst.app/),
-[Pandoc](https://pandoc.org/),
-[mermaid-cli](https://github.com/mermaid-js/mermaid-cli)
-
-```bash
-./build.sh
-# Output: output/testero-docs.pdf
-```
-
 ## Formato
 
 - I contenuti sono scritti in **Markdown** (leggibili su GitHub e come
   contesto AI)
-- Il PDF viene generato tramite conversione Markdown → Typst → PDF
-- I diagrammi di interazione usano **Mermaid** (inline nei `.md`,
-  renderizzati come PNG nel PDF)
+- I diagrammi di interazione usano **Mermaid**, inline nei `.md`
 
 ## Licenza
 
