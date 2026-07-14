@@ -9,13 +9,15 @@
 //  Chi usa il sistema, con quale ruolo, in quale classe
 // ---------------------------------------------------------------------------
 
-Table app_user [headercolor: #4A90D9, note: 'Account utente — ogni persona nel sistema ha un record qui. Es: { name: "Alice Rossi", username: "a.rossi", email: null }'] {
+Table app_user [headercolor: #4A90D9, note: 'Account utente — ogni persona nel sistema ha un record qui. Es: { first_name: "Alice", last_name: "Rossi", username: "a.rossi" }'] {
   id uuid [pk]
-  name varchar [not null, note: 'Nome completo. Es: "Alice Rossi"']
-  username varchar [not null, unique, note: 'Identificativo di login, univoco. Es: "a.rossi"']
+  first_name varchar [not null, note: 'Nome. Es: "Alice". Read-only, assegnato dalla scuola']
+  last_name varchar [not null, note: 'Cognome. Es: "Rossi". Read-only, assegnato dalla scuola']
+  username varchar [not null, unique, note: 'Identificativo di login. Read-only. Es: "a.rossi"']
   password_hash varchar [not null, note: 'Hash bcrypt della password. Mai in chiaro']
   email varchar [unique, note: 'Opzionale. Es: "d.fella@scuola.it" o NULL']
   must_change_password boolean [not null, default: false, note: 'Se true, al login viene forzato il cambio password']
+  is_active boolean [not null, default: true, note: 'Se false, il login viene rifiutato']
   password_expires_at timestamp [note: 'Scadenza della password. NULL = nessuna scadenza']
   created_at timestamp [not null]
   updated_at timestamp [not null]
@@ -64,13 +66,33 @@ Table teacher_class [headercolor: #4A90D9, note: 'Docente insegna in N classi (M
   updated_at timestamp [not null]
 }
 
-Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica per utente. Es: { user: "a.rossi", type: "EXAM_RESULT", enabled: true }'] {
+Table notification_preference [headercolor: #4A90D9, note: 'Preferenze notifica per utente. Es: { user: "a.rossi", event: "EXAM_RESULT", channel: "IN_APP", enabled: true }'] {
   id uuid [pk]
   user_id uuid [not null, ref: > app_user.id]
-  type varchar(50) [not null, note: 'EXAM_RESULT | DEADLINE_REMINDER | PRODUCT_NEWS']
+  event varchar(50) [not null, note: 'EXAM_RESULT | CERT_SIMULATION_RESULT | NEW_ASSESSMENT | DEADLINE_REMINDER | ALL_SUBMITTED']
+  channel varchar(20) [not null, note: 'IN_APP | EMAIL']
   enabled boolean [not null]
   created_at timestamp [not null]
   updated_at timestamp [not null]
+
+  indexes {
+    (user_id, event, channel) [unique]
+  }
+}
+
+Table notification [headercolor: #4A90D9, note: 'Notifica in-app generata dal sistema. Es: { event: "EXAM_RESULT", title: "Risultato disponibile", read: false }'] {
+  id uuid [pk]
+  user_id uuid [not null, ref: > app_user.id]
+  event varchar(50) [not null, note: 'EXAM_RESULT | CERT_SIMULATION_RESULT | NEW_ASSESSMENT | DEADLINE_REMINDER | ALL_SUBMITTED']
+  title varchar(255) [not null, note: 'Titolo breve della notifica']
+  message text [note: 'Messaggio dettagliato']
+  read boolean [not null, default: false, note: 'Se lo studente l ha letta']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, read) [name: 'idx_notification_user_read']
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -90,7 +112,7 @@ Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza mod
   max_attempts int [note: 'Numero massimo di tentativi. NULL = illimitati']
   shuffle_questions boolean [not null, default: true, note: 'Se true, le domande vengono mescolate']
   shuffle_options boolean [not null, default: true, note: 'Se true, le opzioni vengono mescolate']
-  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED | EXPERT']
+  difficulty varchar(20) [note: 'BEGINNER | INTERMEDIATE | ADVANCED']
   type varchar(20) [not null, default: 'CERT_SIMULATION', note: 'CERT_SIMULATION = simulazione certificazione, EXAM = esame, TRAINING = allenamento']
   passing_score decimal [note: 'Soglia di sufficienza. Es: 12.00']
   created_at timestamp [not null]
@@ -150,6 +172,7 @@ Table topic [headercolor: #2ECC71, note: 'Macro-argomento per la sezione Allenam
   description text [note: 'Descrizione opzionale']
   abbreviation varchar(4) [note: 'Sigla breve. Es: "RETI"']
   position int [note: 'Ordine nella lista']
+  parent_id uuid [ref: > topic.id, note: 'Topic padre per gerarchia. NULL = radice']
   enabled boolean [not null, default: true]
   created_at timestamp [not null]
   updated_at timestamp [not null]
@@ -163,17 +186,23 @@ Table topic_subject [headercolor: #2ECC71, note: 'Capitoli di un topic = subject
   updated_at timestamp [not null]
 }
 
+Table assessment_template_topic [headercolor: #2ECC71, note: 'Assessment collegato a N topic (M:N). Es: { assessment: "Esame Full Stack", topic: "Fondamenti Python" }'] {
+  assessment_template_id uuid [pk, ref: > assessment_template.id]
+  topic_id uuid [pk, ref: > topic.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
 // ---------------------------------------------------------------------------
 //  SNAPSHOT — copie immutabili
 //  Quando il docente pubblica, il sistema congela una copia.
 //  Le submission fanno sempre riferimento allo snapshot, mai al template.
 // ---------------------------------------------------------------------------
 
-Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell assessment al publish. Es: { title: "Reti di Calcolatori", version: 1, hash: "a3f8c2...", assessment_id: null per training }'] {
+Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell assessment al publish. Es: { title: "Python Foundation", hash: "a3f8c2...", assessment_template_id: null per training }'] {
   id uuid [pk]
-  assessment_id uuid [ref: > assessment_template.id, note: 'NULL per sessioni di training (nessun assessment padre)']
+  assessment_template_id uuid [ref: > assessment_template.id, note: 'NULL per sessioni di training (nessun assessment padre)']
   content_hash varchar(64) [not null, note: 'SHA-256 del contenuto. Se uguale al precedente, riusa lo snapshot']
-  version int [not null, note: 'Versione progressiva: 1, 2, 3...']
   title varchar [not null]
   timer_minutes int [not null]
   questions_per_assessment int [not null]
@@ -187,7 +216,7 @@ Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell ass
   updated_at timestamp [not null]
 }
 
-Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda. Es: { text: "Quanti livelli ha OSI?", original: q1, points: null }'] {
+Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della domanda. Es: { text: "Quanti livelli ha OSI?", original: q1, points: null, difficulty: "BEGINNER" }'] {
   id uuid [pk]
   assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
   original_question_id uuid [ref: > question_template.id, note: 'Riferimento all originale (nullable)']
@@ -197,6 +226,7 @@ Table question_snapshot [headercolor: #E67E22, note: 'Copia congelata della doma
   explanation text
   position int [not null]
   points decimal(5,2)
+  difficulty varchar(20) [note: 'Difficolta congelata dal template. BEGINNER | INTERMEDIATE | ADVANCED']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -213,22 +243,32 @@ Table option_snapshot [headercolor: #E67E22, note: 'Copia congelata dell opzione
   updated_at timestamp [not null]
 }
 
-Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata del legame domanda-argomento. Es: { question_snapshot: qs1, subject: "Modello OSI", weight: 1.00 }'] {
+Table question_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata del legame domanda-argomento con label congelato. Es: { question_snapshot: qs1, subject: "Modello OSI", weight: 1.00 }'] {
   question_snapshot_id uuid [pk, ref: > question_snapshot.id]
   subject_id uuid [pk, ref: > subject.id]
   weight decimal(5,2) [not null, default: 1.00]
+  label varchar [note: 'Label del subject congelato al momento del publish']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
 
-Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata degli argomenti macro dell assessment. Es: { snapshot: v1, subject: "Variabili e tipi" }'] {
+Table assessment_snapshot_subject [headercolor: #E67E22, note: 'Copia congelata degli argomenti macro dell assessment con label congelato. Es: { snapshot: v1, subject: "Variabili e tipi" }'] {
   assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
   subject_id uuid [pk, ref: > subject.id]
+  label varchar [note: 'Label del subject congelato al momento del publish']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
 
-Table class_test [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe con finestra di disponibilita. Es: { class: "SW-2026", snapshot: v1, dal venerdi alla domenica }'] {
+Table assessment_snapshot_topic [headercolor: #E67E22, note: 'Copia congelata dei topic collegati all assessment. Es: { snapshot: v1, topic: "Fondamenti Python", title: "Fondamenti Python" }'] {
+  assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
+  topic_id uuid [pk, ref: > topic.id]
+  title varchar(200) [note: 'Titolo del topic congelato al momento del publish']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table class_assessment_assignment [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe con finestra di disponibilita. Es: { class: "SW-2026", snapshot: v1, dal venerdi alla domenica }'] {
   class_id uuid [pk, ref: > user_class.id]
   assessment_snapshot_id uuid [pk, ref: > assessment_snapshot.id]
   available_from timestamp [note: 'Da quando gli studenti possono accedere. NULL = subito']
@@ -245,7 +285,7 @@ Table class_test [headercolor: #E67E22, note: 'Assegna uno snapshot a una classe
 Table submission [headercolor: #9B59B6, note: 'Una somministrazione. Es: { user: "a.rossi", snapshot: v1, status: SUBMITTED, score: 16.50, durata: 23 min }'] {
   id uuid [pk]
   user_id uuid [not null, ref: > app_user.id, note: 'Chi sta svolgendo']
-  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id, note: 'Quale versione del test']
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id, note: 'Quale snapshot del test']
   status varchar [not null, default: 'IN_PROGRESS', note: 'IN_PROGRESS → SUBMITTED (consegna manuale) o AUTO_CLOSED (timer scaduto)']
   started_at timestamp [note: 'Quando ha cliccato Avvia']
   submitted_at timestamp [note: 'Quando ha consegnato']
@@ -293,6 +333,7 @@ TableGroup utenti_e_ruoli [color: #4A90D9] {
   teacher_profile
   teacher_class
   notification_preference
+  notification
 }
 
 TableGroup assessment_template [color: #2ECC71] {
@@ -302,6 +343,7 @@ TableGroup assessment_template [color: #2ECC71] {
   subject
   question_template_subject
   assessment_template_subject
+  assessment_template_topic
   topic
   topic_subject
 }
@@ -312,7 +354,8 @@ TableGroup snapshot_immutabili [color: #E67E22] {
   option_snapshot
   question_snapshot_subject
   assessment_snapshot_subject
-  class_test
+  assessment_snapshot_topic
+  class_assessment_assignment
 }
 
 TableGroup submission_risposte [color: #9B59B6] {
