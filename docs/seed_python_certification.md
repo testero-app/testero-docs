@@ -65,6 +65,11 @@ In produzione il seed crea solo il **template**: la pubblicazione dello snapshot
 l'assegnazione a una classe restano azioni del docente nell'applicazione, non della
 migrazione. Solo in `dev` vengono eseguite automaticamente (`v1.8-003`).
 
+Questo assessment è **contenuto di piattaforma**: il suo `owner_id` è `NULL`, quindi
+non appartiene a nessun docente e solo un Admin può gestirlo (vedi *Proprietà e
+permessi* nel [modello dati](./modello_dati.md)). In `dev` la pubblicazione la esegue
+comunque il seed, non un utente.
+
 > I file di seed originali del demo (`50`/`60`/`65`/`70`) non vengono modificati: appartengono
 > a changeset già applicati e cambiarne il contenuto invaliderebbe i checksum Liquibase sui
 > database esistenti. La rimozione avviene quindi con un nuovo changeset che cancella i dati.
