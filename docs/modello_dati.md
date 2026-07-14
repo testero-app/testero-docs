@@ -17,11 +17,12 @@ Le entità sono organizzate in 6 aree:
 
 > **Tabella SQL:** `assessment_template`
 >
-> **Collegata a:** `question_template`, `assessment_template_subject`, `assessment_template_topic`, `assessment_snapshot`
+> **Collegata a:** `app_user` (proprietario), `question_template`, `assessment_template_subject`, `assessment_template_topic`, `assessment_snapshot`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
 | `id` | UUID | PK | Identificativo univoco | `a1b2c3...` |
+| `owner_id` | UUID | FK → `app_user`, NL, ON DELETE SET NULL | Docente proprietario. `NULL` = contenuto di piattaforma, gestito solo da un Admin | `d4e5f6...` |
 | `title` | VARCHAR | NN | Titolo dell'assessment | *"Python Foundation"* |
 | `timer_minutes` | INT | NN | Durata in minuti. 0 = senza timer | `30` |
 | `questions_per_assessment` | INT | NN | Domande estratte dal pool per ogni studente | `20` |
@@ -53,6 +54,27 @@ Il docente può modificare liberamente un **Assessment Template** finché non de
 #### Pool di domande
 
 Il docente inserisce N domande nell'assessment (es. 50). Il campo `questions_per_assessment` dice quante di quelle 50 vengono pescate a caso per ogni studente (es. 20). Così ogni studente riceve un sottoinsieme diverso — meno possibilità di copiare. Se il docente vuole che tutti facciano le stesse identiche domande, gli basta impostare `questions_per_assessment` uguale al numero totale di domande inserite.
+
+#### Proprietà e permessi
+
+Ogni assessment appartiene 1:1 al docente che l'ha creato, tramite `owner_id`. La
+proprietà è ciò che decide chi può agire sull'assessment:
+
+- il **proprietario** può modificarlo e pubblicarlo;
+- un **Admin** può agire su qualsiasi assessment, incluso il contenuto di piattaforma;
+- ogni altro utente — studenti compresi — non può.
+
+`owner_id = NULL` significa **contenuto di piattaforma**: assessment forniti con il
+sistema (es. la simulazione *Python Certification*) che nessun docente possiede e che
+solo un Admin gestisce. Lo stesso vale per un assessment rimasto orfano: se il docente
+proprietario cancella il proprio account, `owner_id` diventa `NULL` automaticamente
+(`ON DELETE SET NULL`) e l'assessment passa sotto la gestione dell'Admin, senza perdere
+gli snapshot già pubblicati né le verifiche già svolte.
+
+:::note
+La pubblicazione è un'azione riservata: solo il docente proprietario (o un Admin) può
+pubblicare uno snapshot. Uno studente non può in nessun caso pubblicare un assessment.
+:::
 
 #### Note
 

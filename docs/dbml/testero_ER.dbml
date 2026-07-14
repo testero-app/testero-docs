@@ -102,6 +102,7 @@ Table notification [headercolor: #4A90D9, note: 'Notifica in-app generata dal si
 
 Table assessment_template [headercolor: #2ECC71, note: 'Assessment — bozza modificabile dal docente. Es: { title: "Python Foundation", timer: 30min, estrae: 20, +1.00/-0.25/0 punti, tipo: CERT_SIMULATION }'] {
   id uuid [pk]
+  owner_id uuid [ref: > app_user.id, note: 'Docente proprietario. NULL = contenuto di piattaforma, gestito solo da Admin. ON DELETE SET NULL: se il proprietario cancella l account, l assessment diventa di piattaforma']
   title varchar [not null, note: 'Es: "Reti di Calcolatori"']
   assessment_description text [note: 'Descrizione visibile allo studente prima di iniziare. Nullable']
   timer_minutes int [not null, note: 'Durata in minuti. 0 = senza timer']
