@@ -196,8 +196,8 @@ Table assessment_template_topic [headercolor: #2ECC71, note: 'Assessment collega
 
 Table tag [headercolor: #2ECC71, note: 'Vocabolario privato del docente per organizzare il banco domande. Non condiviso: ogni docente ha i propri tag. Es: { teacher: "d.fella", name: "Ricorsione" }'] {
   id uuid [pk]
-  teacher_id uuid [not null, ref: > app_user.id, note: 'Docente proprietario. ON DELETE CASCADE: i tag se ne vanno con l account']
-  name varchar(50) [not null, note: 'UNIQUE(teacher_id, name): un docente non duplica un tag']
+  owner_id uuid [not null, ref: > app_user.id, note: 'Docente proprietario (come assessment_template.owner_id). ON DELETE CASCADE: i tag se ne vanno con l account']
+  name varchar(50) [not null, note: 'UNIQUE(owner_id, name): un docente non duplica un tag']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
