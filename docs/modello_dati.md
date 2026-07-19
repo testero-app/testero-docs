@@ -117,7 +117,7 @@ Al momento della pubblicazione, le associazioni **Assessment Template Subject** 
 
 > **Tabella SQL:** `question_template`
 >
-> **Collegata a:** `assessment_template`, `option_template`, `question_template_subject`
+> **Collegata a:** `assessment_template`, `option_template`, `question_template_subject`, `question_tag`
 
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
@@ -458,6 +458,55 @@ Il campo `enabled` permette di nascondere un topic dalla lista senza eliminarlo 
 Il **Topic Subject** lega un **Topic** ai suoi capitoli (**Subject**). La relazione è M:N: un topic contiene più subject, e uno stesso subject può appartenere a più topic.
 
 Il campo `position` definisce l'ordine in cui i capitoli appaiono all'interno del topic nella sezione Allenamento.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Tag</h3></summary>
+
+> **Tabella SQL:** `tag`
+>
+> **Collegata a:** `app_user` (docente proprietario), `question_tag`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `id` | UUID | PK | Identificativo univoco | `tg-recursion` |
+| `owner_id` | UUID | NN, FK → `app_user`, ON DELETE CASCADE | Docente proprietario del tag | `d-fella` |
+| `name` | VARCHAR(50) | NN | Etichetta del tag | *"Ricorsione"* |
+
+Il **Tag** è un'etichetta con cui un docente organizza il proprio banco domande. A differenza di **Subject** e **Topic** — che sono tassonomia di contenuto *globale* — il tag è un **vocabolario privato del singolo docente**: ogni docente ha i propri tag, mai condivisi.
+
+Vincolo di unicità `UNIQUE(owner_id, name)`: un docente non può avere due tag con lo stesso nome, ma due docenti diversi possono avere entrambi un tag *"Difficile"*.
+
+`owner_id` punta a `app_user` (l'identità), non a `teacher_profile`: la proprietà è la stessa colonna di `assessment_template.owner_id`, e "solo un docente" è garantito dal ruolo, non dalla FK.
+
+`ON DELETE CASCADE`: un vocabolario personale senza proprietario non ha senso, quindi se il docente cancella il proprio account i suoi tag vengono rimossi con lui.
+
+:::tip
+*Serve a filtrare e riutilizzare le domande tra assessment diversi — è la base di una futura funzionalità "banco domande". Solo il docente proprietario (o un Admin) può creare, rinominare, cancellare e applicare i propri tag; uno studente non li vede mai.*
+:::
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Question Tag</h3></summary>
+
+> **Tabella SQL:** `question_tag`
+>
+> **Collegata a:** `question_template`, `tag`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `question_template_id` | UUID | PK, FK, ON DELETE CASCADE | Riferimento alla **Question Template** | `q-01` |
+| `tag_id` | UUID | PK, FK, ON DELETE CASCADE | Riferimento al **Tag** | `tg-recursion` |
+
+Il **Question Tag** è la tabella di join che applica i tag alle domande: relazione M:N, una domanda può avere più tag e un tag può etichettare più domande.
+
+Il collegamento è sulla **Question Template** (il banco modificabile), non sullo snapshot congelato: i tag servono al docente per organizzare le domande *prima* della pubblicazione, non compaiono nelle verifiche già somministrate.
 
 </details>
 
