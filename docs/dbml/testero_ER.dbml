@@ -194,6 +194,21 @@ Table assessment_template_topic [headercolor: #2ECC71, note: 'Assessment collega
   updated_at timestamp [not null]
 }
 
+Table tag [headercolor: #2ECC71, note: 'Vocabolario privato del docente per organizzare il banco domande. Non condiviso: ogni docente ha i propri tag. Es: { teacher: "d.fella", name: "Ricorsione" }'] {
+  id uuid [pk]
+  owner_id uuid [not null, ref: > app_user.id, note: 'Docente proprietario (come assessment_template.owner_id). ON DELETE CASCADE: i tag se ne vanno con l account']
+  name varchar(50) [not null, note: 'UNIQUE(owner_id, name): un docente non duplica un tag']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table question_tag [headercolor: #2ECC71, note: 'Applica i tag alle domande (M:N). Sul question_template, non sullo snapshot: serve a organizzare il banco prima della pubblicazione'] {
+  question_template_id uuid [pk, ref: > question_template.id]
+  tag_id uuid [pk, ref: > tag.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
 // ---------------------------------------------------------------------------
 //  SNAPSHOT — copie immutabili
 //  Quando il docente pubblica, il sistema congela una copia.
