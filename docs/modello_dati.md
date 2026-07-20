@@ -79,7 +79,7 @@ pubblicare uno snapshot. Uno studente non può in nessun caso pubblicare un asse
 #### Note
 
 - Quando `shuffle_questions = false` e `shuffle_options = false`, l'assessment è identico per tutti — utile per un EXAM in aula dove il docente vuole lo stesso ordine.
-- `max_attempts = 1` rende l'assessment one-shot (tipico per EXAM). `NULL` = illimitato (tipico per TRAINING e CERT_SIMULATION).
+- `max_attempts = 1` rende l'assessment one-shot (tipico per EXAM). `NULL` = illimitato (tipico per TRAINING e CERT_SIMULATION). Il limite viene copiato nello snapshot al publish e applicato all'avvio di ogni somministrazione (vedi **Assessment Snapshot**).
 - La finestra di disponibilità (quando gli studenti possono accedere) non è su questa tabella: è sulla tabella **Class Test**, che rappresenta l'assegnazione di uno snapshot a una classe. Questo permette di assegnare lo stesso test con finestre diverse per classi diverse.
 
 </details>
@@ -243,11 +243,14 @@ Al momento della pubblicazione, queste associazioni vengono copiate nella tabell
 | `difficulty` | VARCHAR(20) | NL | Difficoltà congelata | `INTERMEDIATE` |
 | `type` | VARCHAR(20) | NN | Tipo congelato | `CERT_SIMULATION` |
 | `passing_score` | DECIMAL | NL | Soglia sufficienza congelata | `12.00` |
+| `max_attempts` | INT | NL | Tentativi massimi congelati. NULL = illimitato | `1` |
 | `published_at` | TIMESTAMP | NN | Quando è stato pubblicato | `2026-07-10 08:00` |
 
 L'**Assessment Snapshot** è la *copia congelata e immutabile* di un **Assessment Template** al momento della pubblicazione. È il record a cui fanno riferimento tutte le somministrazioni — gli studenti non interagiscono mai con il template, solo con lo snapshot.
 
-Ogni campo dell'**Assessment Template** viene copiato qui al momento del publish: titolo, timer, punteggi, difficoltà, tipo, soglia. Da quel momento i valori sono congelati — se il docente modifica il template e ripubblica, viene creato un nuovo snapshot senza alterare il precedente.
+Ogni campo dell'**Assessment Template** viene copiato qui al momento del publish: titolo, timer, punteggi, difficoltà, tipo, soglia, **tentativi massimi**. Da quel momento i valori sono congelati — se il docente modifica il template e ripubblica, viene creato un nuovo snapshot senza alterare il precedente.
+
+Il limite di tentativi (`max_attempts`) è applicato all'avvio di una somministrazione **sul valore congelato dello snapshot**, non su quello attuale del template: così cambiare il limite dopo la pubblicazione non altera retroattivamente una somministrazione già in corso. Riprendere un tentativo ancora in corso non ne consuma uno nuovo.
 
 Il campo `assessment_template_id` è **nullable**: gli snapshot generati dal training mode non hanno un **Assessment Template** padre, perché vengono creati dinamicamente aggregando domande da più assessment.
 
