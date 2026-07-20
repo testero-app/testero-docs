@@ -227,6 +227,7 @@ Table assessment_snapshot [headercolor: #E67E22, note: 'Copia congelata dell ass
   difficulty varchar(20)
   type varchar(20) [not null, default: 'CERT_SIMULATION']
   passing_score decimal
+  max_attempts int [note: 'Tentativi massimi congelati. NULL = illimitato. Applicato allo start della somministrazione']
   published_at timestamp [not null, note: 'Quando e stato pubblicato']
   created_at timestamp [not null]
   updated_at timestamp [not null]
