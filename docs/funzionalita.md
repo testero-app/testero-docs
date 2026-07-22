@@ -365,3 +365,44 @@ Se lo studente non ha ancora completato nessuna verifica, la pagina mostra un me
 </details>
 
 ---
+
+## Convenzioni API
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Paginazione</h3></summary>
+
+Gli endpoint che restituiscono liste supportano la paginazione tramite query parameter:
+
+| Parametro | Default | Descrizione |
+|-----------|---------|-------------|
+| `page` | 0 | Numero della pagina (zero-based) |
+| `size` | 20 | Numero di elementi per pagina |
+
+La risposta affianca alla lista un oggetto `pagination` con i metadati:
+
+| Campo | Tipo | Descrizione |
+|-------|------|-------------|
+| `total_elements` | long | Numero totale di elementi |
+| `total_pages` | int | Numero totale di pagine |
+| `page` | int | Pagina corrente |
+| `size` | int | Dimensione della pagina |
+
+Esempio di risposta di `GET /api/assessments`:
+
+```json
+{
+  "assessments": [ ... ],
+  "pagination": {
+    "total_elements": 42,
+    "total_pages": 3,
+    "page": 0,
+    "size": 20
+  }
+}
+```
+
+Endpoint paginati: `GET /api/assessments` e `GET /api/submissions/mine`. Senza parametri restituiscono la prima pagina con 20 elementi, quindi la paginazione è retrocompatibile per i client già esistenti.
+
+</details>
+
+---
