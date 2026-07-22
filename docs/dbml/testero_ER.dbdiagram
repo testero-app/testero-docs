@@ -185,6 +185,12 @@
         "schemaName": "public",
         "x": 2560,
         "y": -2120
+      },
+      {
+        "name": "deadline_reminder_sent",
+        "schemaName": "public",
+        "x": -1760,
+        "y": 1236
       }
     ],
     "tableGroupCollapseStates": [],
@@ -945,6 +951,36 @@
           "owner_id"
         ],
         "secondTableName": "tag",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "assessment_snapshot",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "assessment_snapshot_id"
+        ],
+        "secondTableName": "deadline_reminder_sent",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "deadline_reminder_sent",
         "secondSchemaName": "public",
         "secondRelation": "*",
         "checkPoints": []
