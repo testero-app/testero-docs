@@ -9,8 +9,8 @@
       {
         "name": "app_user",
         "schemaName": "public",
-        "x": -1040,
-        "y": 24
+        "x": 112,
+        "y": 600
       },
       {
         "name": "app_role",
@@ -129,8 +129,8 @@
       {
         "name": "option_template",
         "schemaName": "public",
-        "x": 3394.1792266421526,
-        "y": -1944
+        "x": 2620.8745305466155,
+        "y": -1736
       },
       {
         "name": "question_template_subject",
@@ -173,6 +173,18 @@
         "schemaName": "public",
         "x": -1760,
         "y": 898
+      },
+      {
+        "name": "tag",
+        "schemaName": "public",
+        "x": 1376,
+        "y": 752
+      },
+      {
+        "name": "question_tag",
+        "schemaName": "public",
+        "x": 2560,
+        "y": -2120
       }
     ],
     "tableGroupCollapseStates": [],
@@ -533,16 +545,7 @@
         "secondTableName": "option_template",
         "secondSchemaName": "public",
         "secondRelation": "*",
-        "checkPoints": [
-          {
-            "x": 1968.66162109375,
-            "y": -1872.8762825065553
-          },
-          {
-            "x": 3372,
-            "y": -1872.8762825065553
-          }
-        ]
+        "checkPoints": []
       },
       {
         "firstFieldNames": [
@@ -650,7 +653,16 @@
         "secondTableName": "option_snapshot",
         "secondSchemaName": "public",
         "secondRelation": "*",
-        "checkPoints": []
+        "checkPoints": [
+          {
+            "x": 3212.6130401785103,
+            "y": -1688
+          },
+          {
+            "x": 3212.6130401785103,
+            "y": -1224
+          }
+        ]
       },
       {
         "firstFieldNames": [
@@ -849,6 +861,90 @@
           "parent_id"
         ],
         "secondTableName": "topic",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "owner_id"
+        ],
+        "secondTableName": "assessment_template",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "teacher_id"
+        ],
+        "secondTableName": "tag",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "question_template",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_template_id"
+        ],
+        "secondTableName": "question_tag",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "tag",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "tag_id"
+        ],
+        "secondTableName": "question_tag",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 2161.263763818718,
+            "y": 800
+          },
+          {
+            "x": 2161.263763818718,
+            "y": -2047.470223741761
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "app_user",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "owner_id"
+        ],
+        "secondTableName": "tag",
         "secondSchemaName": "public",
         "secondRelation": "*",
         "checkPoints": []
