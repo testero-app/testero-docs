@@ -676,6 +676,27 @@ Il FE carica le notifiche non lette ad ogni cambio pagina (`GET /api/notificatio
 
 Il training non genera notifiche.
 
+Le notifiche `DEADLINE_REMINDER` sono generate da uno scheduler che gira ogni ora: per ogni assegnazione con scadenza entro 24 ore, ogni studente della classe che non ha ancora una submission per quell'assessment riceve una notifica in-app. La tabella **Deadline Reminder Sent** garantisce che ciascuno studente venga avvisato una sola volta per assegnazione.
+
+</details>
+
+---
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Deadline Reminder Sent</h3></summary>
+
+> **Tabella SQL:** `deadline_reminder_sent`
+>
+> **Collegata a:** `assessment_snapshot`, `app_user`
+
+| Colonna | Tipo | Vincoli | Descrizione | Esempio |
+|---|---|---|---|---|
+| `assessment_snapshot_id` | UUID | PK, FK | Assessment somministrato per cui è stato inviato il promemoria | `snap-01` |
+| `user_id` | UUID | PK, FK | Studente avvisato — riferimento all'**App User** | `u-alice` |
+| `sent_at` | TIMESTAMP | NN | Quando è stato inviato il promemoria. Default `now()` | `2026-07-23T09:00` |
+
+Marker di de-duplicazione per i promemoria di scadenza. La sua presenza indica che quello studente è già stato avvisato per quell'assessment, così lo scheduler non lo avvisa una seconda volta. La chiave primaria composta `(assessment_snapshot_id, user_id)` è la garanzia "una volta per studente per assessment"; è per-studente (non per-assegnazione) così uno studente iscritto dopo un primo giro di promemoria riceve comunque il suo. Entrambe le FK sono `ON DELETE CASCADE`.
+
 </details>
 
 ---

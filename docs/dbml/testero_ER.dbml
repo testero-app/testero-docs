@@ -95,6 +95,16 @@ Table notification [headercolor: #4A90D9, note: 'Notifica in-app generata dal si
   }
 }
 
+Table deadline_reminder_sent [headercolor: #4A90D9, note: 'Marker di de-dup: uno studente e stato avvisato per un assessment. Garantisce un solo DEADLINE_REMINDER per studente per assessment.'] {
+  assessment_snapshot_id uuid [not null, ref: > assessment_snapshot.id]
+  user_id uuid [not null, ref: > app_user.id]
+  sent_at timestamp [not null, note: 'Quando e stato inviato il promemoria']
+
+  indexes {
+    (assessment_snapshot_id, user_id) [pk]
+  }
+}
+
 // ---------------------------------------------------------------------------
 //  ASSESSMENT — template mutabili
 //  Come e strutturato un assessment: domande, opzioni, argomenti
