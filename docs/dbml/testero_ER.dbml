@@ -19,6 +19,7 @@ Table app_user [headercolor: #4A90D9, note: 'Account utente — ogni persona nel
   must_change_password boolean [not null, default: false, note: 'Se true, al login viene forzato il cambio password']
   is_active boolean [not null, default: true, note: 'Se false, il login viene rifiutato']
   password_expires_at timestamp [note: 'Scadenza della password. NULL = nessuna scadenza']
+  language varchar(5) [not null, default: 'it', note: 'Lingua interfaccia scelta dall utente (it | en)']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }

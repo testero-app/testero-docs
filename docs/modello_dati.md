@@ -535,6 +535,7 @@ Il collegamento è sulla **Question Template** (il banco modificabile), non sull
 | `must_change_password` | BOOLEAN | NN | Se true, forza il cambio al primo login | `false` |
 | `is_active` | BOOLEAN | NN | Se false, il login viene rifiutato. Default true | `true` |
 | `password_expires_at` | TIMESTAMP | NL | Scadenza della password | `NULL` |
+| `language` | VARCHAR(5) | NN | Lingua dell'interfaccia scelta dall'utente. Default `it` | `it` |
 
 L'**App User** è l'entità centrale del sistema: ogni persona — admin, docente o studente — ha esattamente un record qui. Contiene le credenziali di accesso e i dati anagrafici minimi.
 
