@@ -86,8 +86,8 @@ sequenceDiagram
 
 Il sistema:
 1. Mostra solo gli assessment assegnati alla classe dello studente e dentro la finestra di disponibilità
-2. Alla conferma, crea una **Submission** con stato `IN_PROGRESS`
-3. Estrae N domande random dal pool dello snapshot (`questions_per_assessment`)
+2. Alla conferma, crea una **Submission** con stato `IN_PROGRESS` e ne fissa il `seed` di randomizzazione
+3. Estrae N domande random dal pool dello snapshot (`questions_per_assessment`), usando il `seed` della submission: l'estrazione e il mescolamento sono deterministici, quindi al reload lo studente ritrova lo stesso compito
 4. Avvia il timer del FE (basato su `timer_minutes` dello snapshot)
 
 </details>

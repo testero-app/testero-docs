@@ -78,7 +78,7 @@ pubblicare uno snapshot. Uno studente non può in nessun caso pubblicare un asse
 
 #### Note
 
-- Quando `shuffle_questions = false` e `shuffle_options = false`, l'assessment è identico per tutti — utile per un EXAM in aula dove il docente vuole lo stesso ordine.
+- Quando `shuffle_questions = false` e `shuffle_options = false`, l'assessment è identico per tutti — utile per un EXAM in aula dove il docente vuole lo stesso ordine. Quando invece il mescolamento è attivo, resta comunque **stabile per singola submission**: la randomizzazione è deterministica rispetto al `seed` fissato all'avvio (vedi **Submission**), quindi ogni studente vede un ordine diverso ma sempre lo stesso a ogni ricarica.
 - `max_attempts = 1` rende l'assessment one-shot (tipico per EXAM). `NULL` = illimitato (tipico per TRAINING e CERT_SIMULATION). Il limite viene copiato nello snapshot al publish e applicato all'avvio di ogni somministrazione (vedi **Assessment Snapshot**).
 - La finestra di disponibilità (quando gli studenti possono accedere) non è su questa tabella: è sulla tabella **Class Test**, che rappresenta l'assegnazione di uno snapshot a una classe. Questo permette di assegnare lo stesso test con finestre diverse per classi diverse.
 
@@ -836,6 +836,7 @@ La stessa snapshot può essere assegnata a classi diverse con finestre diverse �
 | `started_at` | TIMESTAMP | NL | Quando lo studente ha cliccato *"Avvia"* | `2026-07-10 09:05` |
 | `submitted_at` | TIMESTAMP | NL | Quando ha consegnato o il timer è scaduto | `2026-07-10 09:28` |
 | `score` | DOUBLE | NL | Punteggio totale, calcolato alla consegna | `16.50` |
+| `seed` | BIGINT | NN | Seme di randomizzazione, fissato all'avvio. Rende l'estrazione delle domande e l'ordine delle opzioni **riproducibili** per questa submission | `8241773905` |
 
 La **Submission** rappresenta una singola somministrazione: uno studente che svolge un assessment. Nasce quando lo studente clicca *"Avvia"* e attraversa 3 stati:
 
@@ -847,8 +848,10 @@ Il campo `score` è NULL durante lo svolgimento — viene calcolato dal server a
 
 La **Submission** fa sempre riferimento a un **Assessment Snapshot**, mai al template. Questo garantisce che i risultati riflettano la versione esatta del test come è stato somministrato.
 
+Il campo `seed` viene generato una volta sola all'avvio (`IN_PROGRESS`) e non cambia più. È il seme usato per estrarre il sottoinsieme di domande e per mescolare domande e opzioni: a parità di seed l'estrazione è **deterministica**. Così, se lo studente ricarica la pagina o riprende dopo una disconnessione, ritrova **esattamente lo stesso compito** — stesse domande, stesso ordine, stesso ordine delle opzioni. L'ordine delle opzioni è derivato per singola domanda (`seed` combinato con l'id della domanda), così ogni domanda ha un mescolamento stabile e indipendente. I flag `shuffle_questions` / `shuffle_options` dello snapshot decidono *se* mescolare; il `seed` decide *come*, in modo riproducibile.
+
 :::tip
-*Tutte le entità della somministrazione (Submission, User Answer, User Answer Selected Option) puntano alle tabelle snapshot, non ai template. È il principio di immutabilità: il test che lo studente ha svolto non può cambiare retroattivamente, anche se il docente modifica il template e ripubblica.*
+*Tutte le entità della somministrazione (Submission, User Answer, User Answer Selected Option) puntano alle tabelle snapshot, non ai template. È il principio di immutabilità: il test che lo studente ha svolto non può cambiare retroattivamente, anche se il docente modifica il template e ripubblica. Il `seed` estende questo principio alla randomizzazione: anche l'ordine casuale è congelato per submission.*
 :::
 
 </details>
