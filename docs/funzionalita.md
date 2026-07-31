@@ -179,6 +179,36 @@ Il punteggio è calcolato interamente dal server:
 - Se la domanda ha `points` personalizzati, quelli sovrascrivono `pts_correct`
 - Il `score` sulla **Submission** è la somma di tutti i `points_awarded`
 
+Insieme allo `score`, la risposta contiene i due valori che completano l'esito:
+
+| Campo | Come viene calcolato |
+|---|---|
+| `max_score` | Somma dei `points` dei **Question Snapshot effettivamente estratti** per quella submission; per le domande senza `points` vale `pts_correct` dello snapshot |
+| `passed` | `score >= passing_score` dell'**Assessment Snapshot**; è `null` se lo snapshot non definisce una soglia |
+
+:::caution Pool ≠ compito estratto
+L'**Assessment Snapshot** contiene l'intero *pool* di domande, mentre ogni
+submission ne estrae `questions_per_assessment` (estrazione congelata dal `seed`
+della submission). Tutto ciò che misura una singola submission — `max_score` e
+l'elenco del ripasso — va calcolato sulle domande estratte, non sul pool.
+
+Le domande estratte si ricavano dalle **User Answer** della submission: ne
+esiste una per ogni domanda somministrata, comprese quelle lasciate in bianco.
+Usare il pool produce un massimo gonfiato (es. 21/67 invece di 21/35) e un
+ripasso che mostra domande mai viste dallo studente.
+:::
+
+Esiste un'unica eccezione: quando la lista dei **Question Snapshot** non è
+disponibile, `max_score` ricade sull'approssimazione
+`questions_per_assessment × pts_correct`. È una stima corretta solo se nessuna
+domanda ha `points` personalizzati, quindi va usata solo come ultima risorsa.
+
+**Il frontend non ricalcola nulla di tutto questo.** `score`, `max_score` e
+`passed` vengono presi così come arrivano dal backend e solo formattati. La
+soglia di superamento vive esclusivamente nell'**Assessment Snapshot**: il
+client non ne conosce il valore e non deve dedurlo da rapporti tipo
+"corrette/totali".
+
 Il risultato è **irreversibile**: una volta consegnato, lo stato non torna a `IN_PROGRESS`.
 
 </details>
@@ -257,7 +287,21 @@ sequenceDiagram
 
 **Entità coinvolte:** **Submission**, **User Answer**, **User Answer Selected Option**, **Question Snapshot**, **Option Snapshot**, **Question Snapshot Subject**
 
-Il ripasso mostra per ogni domanda:
+Lo storico (`GET /api/submissions/mine`) restituisce `score`, `max_score`,
+`passed` e `subject_scores` calcolati con le stesse regole della consegna, così
+che la stessa submission mostri lo stesso esito e lo stesso dettaglio per
+argomento subito dopo averla consegnata e mesi dopo rivedendola dallo storico.
+`total_questions`, `correct_count`, `wrong_count` e `unanswered_count` contano
+invece le sole domande a risposta multipla, perché riguardano la correzione
+automatica.
+
+Essendo un endpoint di lista, il breakdown per argomento è calcolato in batch
+per tutte le submission della pagina: il costo resta costante e non cresce con
+il numero di risultati. Le submission le cui domande non hanno argomenti
+associati espongono `subject_scores` vuoto.
+
+Il ripasso copre **solo le domande estratte per quella submission**, non l'intero
+pool dello snapshot, e per ognuna mostra:
 - Il testo della domanda e le opzioni (dallo snapshot)
 - Quale opzione ha selezionato lo studente
 - Quale era la risposta corretta
