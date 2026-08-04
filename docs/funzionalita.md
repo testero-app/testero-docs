@@ -229,29 +229,38 @@ sequenceDiagram
     FE->>BE: GET /api/topics
     BE-->>FE: Lista topic con capitoli
 
-    S->>FE: Seleziona topic e capitoli
-    S->>FE: Sceglie difficoltà e n. domande
-    S->>FE: Clicca "Inizia"
+    S->>FE: Sceglie capitoli, difficoltà e n. domande<br/>(tutti facoltativi)
+    S->>FE: Clicca "Avvia allenamento"
 
     FE->>BE: POST /api/training/start
-    BE->>DB: SELECT domande WHERE subject IN (capitoli selezionati)
-    BE->>BE: Seleziona N domande random
-    BE->>DB: INSERT assessment_snapshot (type = TRAINING, assessment_template_id = NULL)
-    BE->>DB: INSERT question_snapshot + option_snapshot (copie)
-    BE->>DB: INSERT submission (status = IN_PROGRESS)
-    BE-->>FE: submissionId + snapshotId
+    BE->>DB: SELECT snapshot assegnati alla classe<br/>WHERE type IN (TRAINING, CERT_SIMULATION)
+    BE->>DB: SELECT question_snapshot di quegli snapshot<br/>filtrate per capitolo e difficoltà
+    BE->>BE: Deduplica per original_question_id<br/>ed estrae N domande
+    BE->>DB: INSERT submission (assessment_snapshot_id = NULL)
+    BE->>DB: INSERT submission_question (le domande estratte)
+    BE-->>FE: submissionId + timer
+
+    FE->>BE: GET /api/submissions/{id}/questions
+    BE-->>FE: Le domande estratte, nell'ordine registrato
 
     Note over FE: Da qui il flusso è identico<br/>a svolgimento + consegna
 ```
 
-**Entità coinvolte:** **Topic**, **Topic Subject**, **Subject**, **Question Template Subject**, **Assessment Snapshot**, **Question Snapshot**, **Option Snapshot**, **Submission**
+**Entità coinvolte:** **Topic**, **Topic Subject**, **Subject**, **Class Assessment Assignment**, **Assessment Snapshot**, **Question Snapshot**, **Submission**, **Submission Question**
 
-La differenza rispetto a CERT_SIMULATION/EXAM:
-- Lo snapshot viene creato **dinamicamente** al momento dell'avvio, non da un publish del docente
-- `assessment_template_id` è **NULL** (nessun template padre)
-- `type = TRAINING`
-- `timer_minutes = 0` (nessun timer, a meno che lo studente lo attivi nel configuratore)
-- Non c'è esito formale (superato/non superato)
+Le differenze rispetto a CERT_SIMULATION/EXAM:
+
+- **Le domande non vengono copiate.** La sessione fa riferimento alle `question_snapshot` che esistono già, create quando il docente ha pubblicato il pool. In precedenza ogni avvio ne copiava una per una — 170 righe per una sessione da 28 domande, inutilizzabili da chiunque altro.
+- **La sessione non ha un assessment**: `submission.assessment_snapshot_id` è `NULL`, perché il compito attraversa più pool e non appartiene a nessuno di essi. Le domande estratte sono elencate in `submission_question`, nell'ordine in cui sono state estratte, così un ricaricamento riproduce lo stesso compito.
+- **Si pesca solo da ciò che la classe può usare**: snapshot assegnati alla classe dello studente, di tipo `TRAINING` o `CERT_SIMULATION`. Gli **`EXAM` non sono mai pescabili**: uno studente non deve incontrare le domande di una verifica che deve ancora svolgere.
+- **I doppioni fra edizioni vengono collassati** su `original_question_id`, tenendo la copia del pool pubblicato più di recente — quella con le correzioni più aggiornate del docente.
+- **Punteggio fisso della pratica**: un punto per risposta corretta, nessuna penalità, nessuna soglia di superamento. Non essendoci uno snapshot da cui leggere le regole, sono costanti nel codice.
+- **Timer**: scelto dallo studente e salvato sulla sessione (`submission.timer_minutes`), non su uno snapshot.
+- Nessun esito formale (superato/non superato), e le competenze continuano a ignorare l'allenamento.
+
+> Quando esisterà il flusso docente, l'insieme dei pool pescabili sarà deciso dalla spunta
+> "disponibile per l'allenamento" sull'assegnazione, non più dal tipo di prova — vedi
+> [testero-backend#246](https://github.com/testero-app/testero-backend/issues/246).
 
 </details>
 
