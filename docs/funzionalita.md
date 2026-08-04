@@ -229,29 +229,38 @@ sequenceDiagram
     FE->>BE: GET /api/topics
     BE-->>FE: Lista topic con capitoli
 
-    S->>FE: Seleziona topic e capitoli
-    S->>FE: Sceglie difficoltà e n. domande
-    S->>FE: Clicca "Inizia"
+    S->>FE: Sceglie capitoli, difficoltà e n. domande<br/>(tutti facoltativi)
+    S->>FE: Clicca "Avvia allenamento"
 
     FE->>BE: POST /api/training/start
-    BE->>DB: SELECT domande WHERE subject IN (capitoli selezionati)
-    BE->>BE: Seleziona N domande random
-    BE->>DB: INSERT assessment_snapshot (type = TRAINING, assessment_template_id = NULL)
-    BE->>DB: INSERT question_snapshot + option_snapshot (copie)
-    BE->>DB: INSERT submission (status = IN_PROGRESS)
-    BE-->>FE: submissionId + snapshotId
+    BE->>DB: SELECT snapshot assegnati alla classe<br/>WHERE type IN (TRAINING, CERT_SIMULATION)
+    BE->>DB: SELECT question_snapshot di quegli snapshot<br/>filtrate per capitolo e difficoltà
+    BE->>BE: Deduplica per original_question_id<br/>ed estrae N domande
+    BE->>DB: INSERT submission (assessment_snapshot_id = NULL)
+    BE->>DB: INSERT submission_question (le domande estratte)
+    BE-->>FE: submissionId + timer
+
+    FE->>BE: GET /api/submissions/{id}/questions
+    BE-->>FE: Le domande estratte, nell'ordine registrato
 
     Note over FE: Da qui il flusso è identico<br/>a svolgimento + consegna
 ```
 
-**Entità coinvolte:** **Topic**, **Topic Subject**, **Subject**, **Question Template Subject**, **Assessment Snapshot**, **Question Snapshot**, **Option Snapshot**, **Submission**
+**Entità coinvolte:** **Topic**, **Topic Subject**, **Subject**, **Class Assessment Assignment**, **Assessment Snapshot**, **Question Snapshot**, **Submission**, **Submission Question**
 
-La differenza rispetto a CERT_SIMULATION/EXAM:
-- Lo snapshot viene creato **dinamicamente** al momento dell'avvio, non da un publish del docente
-- `assessment_template_id` è **NULL** (nessun template padre)
-- `type = TRAINING`
-- `timer_minutes = 0` (nessun timer, a meno che lo studente lo attivi nel configuratore)
-- Non c'è esito formale (superato/non superato)
+Le differenze rispetto a CERT_SIMULATION/EXAM:
+
+- **Le domande non vengono copiate.** La sessione fa riferimento alle `question_snapshot` che esistono già, create quando il docente ha pubblicato il pool. In precedenza ogni avvio ne copiava una per una — 170 righe per una sessione da 28 domande, inutilizzabili da chiunque altro.
+- **La sessione non ha un assessment**: `submission.assessment_snapshot_id` è `NULL`, perché il compito attraversa più pool e non appartiene a nessuno di essi. Le domande estratte sono elencate in `submission_question`, nell'ordine in cui sono state estratte, così un ricaricamento riproduce lo stesso compito.
+- **Si pesca solo da ciò che la classe può usare**: snapshot assegnati alla classe dello studente, di tipo `TRAINING` o `CERT_SIMULATION`. Gli **`EXAM` non sono mai pescabili**: uno studente non deve incontrare le domande di una verifica che deve ancora svolgere.
+- **I doppioni fra edizioni vengono collassati** su `original_question_id`, tenendo la copia del pool pubblicato più di recente — quella con le correzioni più aggiornate del docente.
+- **Punteggio fisso della pratica**: un punto per risposta corretta, nessuna penalità, nessuna soglia di superamento. Non essendoci uno snapshot da cui leggere le regole, sono costanti nel codice.
+- **Timer**: scelto dallo studente e salvato sulla sessione (`submission.timer_minutes`), non su uno snapshot.
+- Nessun esito formale (superato/non superato), e le competenze continuano a ignorare l'allenamento.
+
+> Quando esisterà il flusso docente, l'insieme dei pool pescabili sarà deciso dalla spunta
+> "disponibile per l'allenamento" sull'assegnazione, non più dal tipo di prova — vedi
+> [testero-backend#246](https://github.com/testero-app/testero-backend/issues/246).
 
 </details>
 
@@ -307,6 +316,109 @@ pool dello snapshot, e per ognuna mostra:
 - Quale era la risposta corretta
 - La spiegazione didattica (`explanation` dal **Question Snapshot**)
 - Gli argomenti della domanda (dal **Question Snapshot Subject**) per il breakdown per argomento
+
+</details>
+
+---
+
+## Flusso docente — creazione e assegnazione (in progetto)
+
+> **Attenzione:** questa sezione descrive un disegno **non ancora implementato**. Oggi le
+> prove e le assegnazioni si creano a mano via SQL, e l'allenamento pesca direttamente dal
+> banco domande senza passare dagli snapshot pubblicati. Il progetto è tracciato in
+> [testero-backend#246](https://github.com/testero-app/testero-backend/issues/246).
+
+Il banco domande (`assessment_template` + `question_template`) è modificabile dal docente.
+La **pubblicazione** ne produce una copia congelata — lo snapshot — che è ciò che gli
+studenti svolgono. Gli snapshot esistono in tre tipi, già presenti nel modello:
+`TRAINING` (pool di allenamento), `CERT_SIMULATION` ed `EXAM`.
+
+Due principi reggono l'intero disegno:
+
+1. **La separazione per classe non si ottiene duplicando gli snapshot**, ma con
+   `class_assessment_assignment`: un pool, tante assegnazioni, ciascuna con la propria
+   finestra di validità. Duplicare significherebbe correggere lo stesso refuso in più copie.
+2. **La disponibilità per l'allenamento è una proprietà dell'assegnazione, non della prova.**
+   È questo che rende impossibile lo spoiler fra classi che svolgono lo stesso esame in date
+   diverse.
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Pubblicazione, assegnazione e allenabilità</h3></summary>
+
+```mermaid
+sequenceDiagram
+    participant D as Docente
+    participant BE as Backend
+    participant DB as Database
+    participant A as Studente 1ªA
+    participant B as Studente 1ªB
+
+    D->>BE: Pubblica "Esame Python" (EXAM)
+    BE->>DB: INSERT assessment_snapshot + question_snapshot (copia congelata)
+
+    D->>BE: Assegna a 1ªA — finestra fino al 31 marzo,<br/>allenabile dopo la scadenza
+    D->>BE: Assegna a 1ªB — finestra fino al 30 aprile,<br/>allenabile dopo la scadenza
+    BE->>DB: INSERT class_assessment_assignment × 2<br/>(stesso snapshot, finestre diverse)
+
+    Note over A,B: 1° aprile — la scadenza della 1ªA è passata, quella della 1ªB no
+
+    A->>BE: Apre Allenamento
+    BE->>DB: SELECT materiale allenabile<br/>WHERE class_id = 1ªA AND scadenza superata
+    DB-->>BE: Pool base + Esame Python
+    BE-->>A: Può ripassare l'esame
+
+    B->>BE: Apre Allenamento
+    BE->>DB: SELECT materiale allenabile<br/>WHERE class_id = 1ªB AND scadenza superata
+    DB-->>BE: Solo il pool base
+    BE-->>B: L'esame non è raggiungibile
+```
+
+Alla pubblicazione il docente sceglie la disponibilità per l'allenamento fra tre valori:
+
+| valore | quando usarlo |
+|--------|---------------|
+| **mai** | verifica riservata |
+| **subito** | pool di esercitazione |
+| **dopo la scadenza** | default per verifiche ed esami |
+
+Con un semplice sì/no la sicurezza dipenderebbe dal docente che ricorda di attivare il flag
+al momento giusto; con **dopo la scadenza** come default, il caso pericoloso non è
+raggiungibile.
+
+</details>
+
+<details>
+<summary><h3 style={{display: 'inline'}}>Casi d'uso</h3></summary>
+
+**Creazione**
+
+| | Il docente… | Risultato |
+|---|---|---|
+| **C1** | scrive un pool di allenamento (capitolo, difficoltà, spiegazione) e pubblica | snapshot `TRAINING` |
+| **C2** | scrive una verifica: timer, soglia, tentativi → pubblica | snapshot `EXAM` |
+| **C3** | scrive una simulazione di certificazione → pubblica | snapshot `CERT_SIMULATION` |
+| **C4** | importa domande da un pool esistente in una nuova prova | copia nel banco, da lì indipendenti |
+| **C5** | corregge una domanda e ripubblica | nuovo snapshot; le sessioni già svolte restano sul precedente |
+| **C6** | ritira una domanda | esce dalle estrazioni future, resta leggibile nei ripassi |
+
+**Assegnazione**
+
+| | Il docente… | Effetto |
+|---|---|---|
+| **A1** | assegna il pool di allenamento alla 1ªA, da subito, senza scadenza | la 1ªA si allena |
+| **A2** | assegna lo stesso esame a 1ªA (marzo) e 1ªB (aprile) | due finestre, un solo snapshot |
+| **A3** | spunta "allenabile dopo la scadenza" sull'assegnazione | la 1ªA ripassa dopo marzo, la 1ªB non prima di aprile |
+| **A4** | non assegna un pool a una classe più indietro nel programma | invisibile per quella classe |
+| **A5** | chiude la finestra o revoca l'assegnazione | la prova sparisce, lo storico delle submission resta |
+
+**Studente**
+
+| | |
+|---|---|
+| **S1** | vede solo ciò che è assegnato alla sua classe, nella finestra valida |
+| **S2** | si allena scegliendo capitolo e difficoltà fra il materiale allenabile per lui |
+| **S3** | ripassa una verifica già svolta, ora allenabile |
+| **S4** | riapre una sessione passata e rivede risposte e spiegazioni |
 
 </details>
 
