@@ -660,10 +660,11 @@ Il vincolo UNIQUE su `(user_id, event, channel)` impedisce duplicati.
 | `title` | VARCHAR(255) | NN | Titolo breve | *"Risultato esame disponibile"* |
 | `message` | TEXT | NL | Messaggio dettagliato | *"Python Foundation: 18 punti"* |
 | `read` | BOOLEAN | NN | Se lo studente l'ha letta. Default false | `false` |
+| `source_event_id` | UUID | NL | ID dell'evento sorgente (submission o assessment snapshot) — usato dal FE per navigare al dettaglio | `sub-01` |
 
 La **Notification** è un record di notifica in-app generato dal sistema quando si verifica un evento significativo. Viene creata solo se l'utente ha il canale IN_APP attivo per quell'evento (controllato tramite **Notification Preference**).
 
-Il FE carica le notifiche non lette ad ogni cambio pagina (`GET /api/notifications/unread`) e mostra un badge con il conteggio nella top bar. Lo studente può cliccare per aprire il pannello, leggere le notifiche e segnarle come lette.
+Il FE carica le notifiche non lette ad ogni cambio pagina (`GET /api/notifications/unread`) e mostra un badge con il conteggio nella top bar. Lo studente può cliccare una notifica per aprire direttamente la risorsa collegata (es. il risultato di un esame) e segnarla come letta.
 
 **Eventi che generano notifiche:**
 

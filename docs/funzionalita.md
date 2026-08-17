@@ -461,6 +461,7 @@ sequenceDiagram
     S->>FE: Clicca su una notifica
     FE->>BE: PUT /api/notifications/{id}/read
     FE->>FE: Aggiorna badge count
+    FE->>FE: Naviga alla risorsa sorgente (es. /results/summary)
 ```
 
 **Entità coinvolte:** **Notification**, **Notification Preference**, **Submission**, **Assessment Snapshot**
@@ -468,6 +469,8 @@ sequenceDiagram
 Le notifiche vengono generate dal server dopo il completamento di un assessment (non per training). Il FE non fa polling: carica il conteggio delle notifiche non lette ad ogni cambio pagina.
 
 Il sistema controlla le **Notification Preference** dell'utente prima di creare la notifica. Se l'utente ha disattivato il canale IN_APP per quell'evento, la notifica non viene creata.
+
+Ogni notifica può contenere un `source_event_id` (UUID dell'evento che l'ha generata). Al click, il FE usa questo ID per navigare direttamente alla risorsa collegata: risultato di un esame/simulazione (`/results/summary`) o sezione certificazioni (`/certifications` per i promemoria scadenza). Se l'ID non è presente (notifiche precedenti), la notifica viene solo segnata come letta.
 
 </details>
 
