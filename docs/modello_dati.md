@@ -195,6 +195,8 @@ Una domanda può pesare su più argomenti contemporaneamente — ad esempio una 
 
 Al momento della pubblicazione, queste associazioni vengono copiate nella tabella **Question Snapshot Subject** con gli stessi valori di peso.
 
+**Fallback automatico:** se una domanda non ha `question_template_subject` espliciti, lo snapshot eredita automaticamente i subject dai **Topic** dell'assessment (via `topic_subject`), con peso 1.00. In questo modo il docente definisce i subject una sola volta a livello di topic, senza doverli ripetere su ogni domanda.
+
 </details>
 
 ---
