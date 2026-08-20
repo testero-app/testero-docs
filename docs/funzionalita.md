@@ -511,6 +511,15 @@ sequenceDiagram
 
 **Entità coinvolte:** **Submission**, **User Answer**, **Question Snapshot**, **Question Snapshot Subject**, **Subject**, **Topic**, **Topic Subject**
 
+**Visibilità dei topic:**
+- **Allenamento**: mostra solo i topic con `enabled = true` e almeno una domanda. Il docente controlla cosa è visibile abilitando/disabilitando i topic.
+- **Competenze**: mostra **tutti** i topic (anche quelli disabilitati nell'allenamento). La mastery viene calcolata da tutte le submission di tipo EXAM e CERT_SIMULATION, indipendentemente dallo stato di abilitazione del topic.
+
+**Architettura degli alberi di competenza:**
+- Le simulazioni di certificazione usano un albero separato: "Simulazioni di certificazione" → un topic per linguaggio (Python, JavaScript, Java).
+- L'allenamento usa un albero "Programmazione Software" con subject granulari (Tipi di dato, Cicli, Funzioni...).
+- I due alberi sono indipendenti e non si sovrappongono.
+
 La pagina Competenze mostra la padronanza dello studente per argomento, calcolata dalle submission passate:
 
 - Solo **EXAM** e **CERT_SIMULATION** contano — il **training** è escluso
