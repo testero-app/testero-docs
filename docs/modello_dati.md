@@ -30,7 +30,7 @@ Le entità sono organizzate in 6 aree:
 | `pts_wrong` | DECIMAL | NN | Punti per risposta errata | `-0.25` |
 | `pts_unanswered` | DECIMAL | NN | Punti per risposta non data. Default 0 | `0` |
 | `difficulty` | VARCHAR(20) | NL | Livello di difficoltà globale | `INTERMEDIATE` |
-| `type` | VARCHAR(20) | NN | Tipo di assessment | `CERT_SIMULATION` |
+| `type` | VARCHAR(20) | NN | Tipo di assessment. Default `CERT_SIMULATION` | `CERT_SIMULATION` |
 | `passing_score` | DECIMAL | NL | Soglia sufficienza | `12.00` |
 | `max_attempts` | INT | NL | Tentativi massimi. NULL = illimitato | `NULL` |
 | `shuffle_questions` | BOOLEAN | NN | Mescola l'ordine delle domande. Default true | `true` |
@@ -389,9 +389,11 @@ L'**Assessment Snapshot Topic** è la copia congelata delle associazioni **Asses
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
 | `id` | UUID | PK | Identificativo univoco | `s-variables` |
-| `label` | VARCHAR | NN | Nome dell'argomento | *"Variabili e tipi"* |
+| `label` | VARCHAR | NN, UQ | Nome dell'argomento. Univoco: identifica il capitolo | *"Variabili e tipi"* |
 
 Il **Subject** è un argomento o tag che classifica i contenuti del sistema. Rappresenta un concetto didattico — ad esempio *"Variabili e tipi"*, *"Controllo di flusso"*, *"Funzioni"*, *"Modello OSI"*.
+
+La `label` è **univoca**: è la chiave naturale con cui gli script di seed riconoscono un argomento già esistente, ed è ciò che rende il caricamento ripetibile senza duplicare le righe.
 
 I **Subject** sono entità stabili e condivise: non vengono mai duplicati nello snapshot. Sono referenziati sia dai template (`assessment_template_subject`, `question_template_subject`) sia dagli snapshot (`assessment_snapshot_subject`, `question_snapshot_subject`) tramite FK.
 
@@ -419,7 +421,7 @@ I **Subject** possono anche essere raggruppati in **Topic** tramite la tabella *
 | Colonna | Tipo | Vincoli | Descrizione | Esempio |
 |---|---|---|---|---|
 | `id` | UUID | PK | Auto-generato | `t-python` |
-| `title` | VARCHAR(200) | NN | Titolo del topic | *"Fondamenti Python"* |
+| `title` | VARCHAR(200) | NN, UQ | Titolo del topic. Univoco: identifica il nodo dell'albero | *"Fondamenti Python"* |
 | `description` | TEXT | NL | Descrizione opzionale | *"Variabili, tipi, controllo di flusso..."* |
 | `abbreviation` | VARCHAR(4) | NL | Sigla breve | *"Py"* |
 | `position` | INT | | Ordine nella lista | `1` |
